@@ -17,7 +17,8 @@ int main(int argc, char *argv[])
 		return 1;
 
 	initShaders();
-	loadShaders("vshad.txt", "fshad.txt");
+	loadShaders("shaders/wiggle.vshad", "shaders/fshad.txt");
+	loadOutlineShaders("shaders/wiggle.vshad", "shaders/outline.fshad");
 
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);
@@ -45,17 +46,23 @@ static int init(int *argc, char *argv[])
 		return 1;
 	}
 
+GLfloat params[2];
+glGetFloatv(GL_ALIASED_LINE_WIDTH_RANGE, params);
+printf("line width range: %f -- %f\n", params[0], params[1]);
+
 	return 0;
 }
 
 void keyboard(unsigned char key, int x, int y)
 {
+	(void)x; (void)y;
 	if (key == 0x1B)
 		exit(0);
 }
 
 void specialKey(int key, int x, int y)
 {
+	(void)x; (void)y;
 	if (key == GLUT_KEY_F5)
 		reloadShaders();
 }
@@ -71,11 +78,13 @@ void reshape(int w, int h)
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	glViewport(0, 0, w, h);
-	//gluPerspective(45, ratio, 0.1, 1000);
-	glOrtho(0, 1, 0, 1, -1, 1);
+	gluPerspective(45, ratio, 0.1, 1000);
+	/*glOrtho(0, 1, 0, 1, -1, 1);*/
 	glMatrixMode(GL_MODELVIEW);
 }
 
+extern GLuint shaderProgram;
+extern GLuint outlineShaderProgram;
 void display(void)
 {
 	float t;
@@ -84,14 +93,41 @@ void display(void)
 
 	updateShaderTime(t);
 
+	glClearColor(0.2, 0.5, 0.1, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	glLoadIdentity();
+	glTranslatef(0, 0, -1.0);
+	glRotatef(20*t, 0, 1, 0);
+
+	glEnable(GL_CULL_FACE);
+	glEnable(GL_DEPTH_TEST);
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glDepthFunc(GL_LESS);
+	glCullFace(GL_BACK);
+	glUseProgram(shaderProgram);
+	updateShaderTime(t);
+	/*glutSolidCone(0.1, 0.2, 20, 20);*/
+	glutSolidTorus(0.05, 0.1, 40, 40);
+
+	glLineWidth(10);
+	glPolygonMode(GL_BACK, GL_LINE);
+	glDepthFunc(GL_LEQUAL);
+	glCullFace(GL_FRONT);
+	glUseProgram(outlineShaderProgram);
+	updateShaderTime(t);
+	/*glutSolidCone(0.1, 0.2, 20, 20);*/
+	glutSolidTorus(0.05, 0.1, 40, 40);
+
+/*
 	glBegin(GL_QUADS);
 		glVertex3f(-1, -1, -1);
 		glVertex3f( 1, -1, -1);
 		glVertex3f( 1,  1, -1);
 		glVertex3f(-1,  1, -1);
 	glEnd();
+*/
 
 	glutSwapBuffers();
 
