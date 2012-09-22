@@ -4,12 +4,10 @@
 #include <stdio.h>
 
 #include "shaders.h"
+//#include "entry.h"
 
 static int init(int *argc, char *argv[]);
-static void keyboard(unsigned char key, int x, int y);
 static void specialKey(int key, int x, int y);
-static void reshape(int w, int h);
-static void display(void);
 
 int main(int argc, char *argv[])
 {
@@ -17,12 +15,12 @@ int main(int argc, char *argv[])
 		return 1;
 
 	initShaders();
-	loadShaders("vshad.txt", "fshad.txt");
+	loadShaders("vshad.txt", "metablob.txt");//"fshad.txt");
 
-	glutDisplayFunc(display);
-	glutReshapeFunc(reshape);
-	glutKeyboardFunc(keyboard);
+	shaderDisplayMode();
+
 	glutSpecialFunc(specialKey);
+
 	glutMainLoop();
 
 	return 0;
@@ -48,52 +46,10 @@ static int init(int *argc, char *argv[])
 	return 0;
 }
 
-void keyboard(unsigned char key, int x, int y)
-{
-	if (key == 0x1B)
-		exit(0);
-}
-
 void specialKey(int key, int x, int y)
 {
 	if (key == GLUT_KEY_F5)
 		reloadShaders();
-}
-
-void reshape(int w, int h)
-{
-	float ratio;
-
-	if(h == 0)
-		ratio = 0;
-	else
-		ratio = (float)w / h;
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glViewport(0, 0, w, h);
-	//gluPerspective(45, ratio, 0.1, 1000);
-	glOrtho(0, 1, 0, 1, -1, 1);
-	glMatrixMode(GL_MODELVIEW);
-}
-
-void display(void)
-{
-	float t;
-
-	t = (float)glutGet(GLUT_ELAPSED_TIME) / 1000;
-
-	updateShaderTime(t);
-
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	glBegin(GL_QUADS);
-		glVertex3f(-1, -1, -1);
-		glVertex3f( 1, -1, -1);
-		glVertex3f( 1,  1, -1);
-		glVertex3f(-1,  1, -1);
-	glEnd();
-
-	glutSwapBuffers();
-
-	glutPostRedisplay();
+	if (key == GLUT_KEY_F11)
+		glutFullScreen();
 }

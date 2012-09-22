@@ -3,7 +3,10 @@
 
 void initShaders(void);
 void loadShaders(const char *vshad, const char *fshad);
+void loadVertexShader(const char *vshad);
+void loadFragmentShader(const char *fshad);
 void reloadShaders(void);
-void updateShaderTime(float t);
+void shaderDisplayMode(void);
+void updateShaderUniforms(void);
 
 #endif
