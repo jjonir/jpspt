@@ -1,0 +1,20 @@
+#version 120
+
+uniform float time;
+
+float snoise(vec4 v);
+
+float tri(float n)
+{
+    float t = abs(4*fract(n) - 2) - 1;
+    return t;
+}
+void main() {
+    //float wig = sin(time)/16;
+    //float wig = (tri(gl_Vertex.x) + tri(gl_Vertex.y) + tri(gl_Vertex.z)) / 4;
+    float wig = snoise(vec4(gl_Vertex.xyz*2, time/4))/2;
+    vec3 wigvec = vec3(0.0, wig, 0.0);
+    //gl_Position = ftransform() + vec4(wigvec, 0);
+    gl_Position = ftransform();
+    gl_Position += vec4(wigvec, 0);
+}

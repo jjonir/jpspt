@@ -15,7 +15,8 @@ int main(int argc, char *argv[])
 		return 1;
 
 	initShaders();
-	loadShaders("vshad.txt", "metablob.txt");//"fshad.txt");
+	loadShaders("shaders/wiggle.vshad", "shaders/fshad.txt");
+	loadOutlineShaders("shaders/wiggle.vshad", "shaders/outline.fshad");
 
 	shaderDisplayMode();
 
@@ -48,6 +49,7 @@ static int init(int *argc, char *argv[])
 
 void specialKey(int key, int x, int y)
 {
+	(void)x; (void)y;
 	if (key == GLUT_KEY_F5)
 		reloadShaders();
 	if (key == GLUT_KEY_F11)
