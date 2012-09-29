@@ -251,14 +251,13 @@ static int link(GLuint program)
 	return 0;
 }
 
-void shaderDisplayFunc(void)
+void shaderDrawGeom(void)
 {
+	glutSolidTorus(0.05, 0.1, 40, 40);
+	/*glutSolidCone(0.1, 0.2, 20, 20);*/
+	/*
 	int res = 100;
 	int i, j;
-
-	updateShaderUniforms();
-
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glBegin(GL_QUADS);
 		for (i = 0; i < res; i++) {
@@ -269,40 +268,71 @@ void shaderDisplayFunc(void)
 				glVertex3f(-1+2*i/res,     -1+2*(j+1)/res, -1);
 			}
 		}
-/*
-		glVertex3f(-1, -1, -1);
-		glVertex3f( 1, -1, -1);
-		glVertex3f( 1,  1, -1);
-		glVertex3f(-1,  1, -1);
-*/
-/*
-		glVertex3f( 1, -1, -1);
-		glVertex3f( 1, -1, -3);
-		glVertex3f( 1,  1, -3);
-		glVertex3f( 1,  1, -1);
-
-		glVertex3f( 1, -1, -3);
-		glVertex3f(-1, -1, -3);
-		glVertex3f(-1,  1, -3);
-		glVertex3f( 1,  1, -3);
-
-		glVertex3f(-1, -1, -3);
-		glVertex3f(-1, -1, -1);
-		glVertex3f(-1,  1, -1);
-		glVertex3f(-1,  1, -3);
-
-		glVertex3f(-1,  1, -1);
-		glVertex3f( 1,  1, -1);
-		glVertex3f( 1,  1, -3);
-		glVertex3f(-1,  1, -3);
-
-		glVertex3f(-1,  1, -1);
-		glVertex3f(-1,  1, -3);
-		glVertex3f( 1,  1, -3);
-		glVertex3f( 1,  1, -1);
-*/
 	glEnd();
-	glRotatef(0, 0, 1, glutGet(GLUT_ELAPSED_TIME));
+	*/
+	/*
+	glBegin(GL_QUADS);
+		glVertex3f(-1, -1, -1);
+		glVertex3f( 1, -1, -1);
+		glVertex3f( 1,  1, -1);
+		glVertex3f(-1,  1, -1);
+	*/
+	/*
+		glVertex3f( 1, -1, -1);
+		glVertex3f( 1, -1, -3);
+		glVertex3f( 1,  1, -3);
+		glVertex3f( 1,  1, -1);
+
+		glVertex3f( 1, -1, -3);
+		glVertex3f(-1, -1, -3);
+		glVertex3f(-1,  1, -3);
+		glVertex3f( 1,  1, -3);
+
+		glVertex3f(-1, -1, -3);
+		glVertex3f(-1, -1, -1);
+		glVertex3f(-1,  1, -1);
+		glVertex3f(-1,  1, -3);
+
+		glVertex3f(-1,  1, -1);
+		glVertex3f( 1,  1, -1);
+		glVertex3f( 1,  1, -3);
+		glVertex3f(-1,  1, -3);
+
+		glVertex3f(-1,  1, -1);
+		glVertex3f(-1,  1, -3);
+		glVertex3f( 1,  1, -3);
+		glVertex3f( 1,  1, -1);
+	glEnd();
+	*/
+}
+
+void shaderDisplayFunc(void)
+{
+	updateShaderUniforms();
+
+	glClearColor(0.2, 0.5, 0.1, 1.0);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glLoadIdentity();
+	glTranslatef(0, 0, -1.0);
+	glRotatef(20 * (float)glutGet(GLUT_ELAPSED_TIME) / 1000, 0, 1, 0);
+
+	glEnable(GL_CULL_FACE);
+	glEnable(GL_DEPTH_TEST);
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glDepthFunc(GL_LESS);
+	glCullFace(GL_BACK);
+	glUseProgram(shaderProgram);
+	updateShaderUniforms();
+	shaderDrawGeom();
+
+	glLineWidth(10);
+	glPolygonMode(GL_BACK, GL_LINE);
+	glDepthFunc(GL_LEQUAL);
+	glCullFace(GL_FRONT);
+	glUseProgram(outlineShaderProgram);
+	shaderDrawGeom();
 
 	glutSwapBuffers();
 
@@ -311,6 +341,7 @@ void shaderDisplayFunc(void)
 
 void shaderKeyboardFunc(unsigned char key, int x, int y)
 {
+	(void)x; (void)y;
 	if (key == 0x1B)
 		exit(0);
 	else if (key == 'v')
