@@ -119,7 +119,7 @@ int loadVertexShaderFromFile(const char *filename)
 	fprintf(stderr, "Loading vertex shader:\n");
 	strncpy(vertexFile, filename, 1024);
 	/*return loadShaderFromFile(filename, vertexShader);*/
-	return loadShaderFromFiles(vertexShader, 2, filename, "noise4D.glsl");
+	return loadShaderFromFiles(vertexShader, 2, filename, "shaders/noise4D.glsl");
 }
 
 int loadFragmentShaderFromFile(const char *filename)
@@ -133,7 +133,7 @@ int loadOutlineVertexShaderFromFile(const char *filename)
 {
 	strncpy(outlineVertexFile, filename, 1024);
 	/*return loadShaderFromFile(filename, outlineVertexShader);*/
-	return loadShaderFromFiles(outlineVertexShader, 2, filename, "noise4D.glsl");
+	return loadShaderFromFiles(outlineVertexShader, 2, filename, "shaders/noise4D.glsl");
 }
 
 int loadOutlineFragmentShaderFromFile(const char *filename)
