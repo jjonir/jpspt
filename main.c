@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
 
 	initShaders();
 	loadShaders("shaders/wiggle.vshad", "shaders/fshad.txt");
-	loadOutlineShaders("shaders/wiggle.vshad", "shaders/outline.fshad");
+	loadOutlineShaders("shaders/wiggle.vshad", "shaders/black.fshad");
 
 	shaderDisplayMode();
 

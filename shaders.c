@@ -71,6 +71,19 @@ void loadVertexShader(const char *vshad)
 		glUseProgram(shaderProgram);
 }
 
+void loadBothVertexShaders(const char *vshad)
+{
+	int status = 0;
+	if ((status = loadVertexShaderFromFile(vshad)) == 0)
+		glAttachShader(shaderProgram, vertexShader);
+	if ((status == 0) && (link(shaderProgram) == 0))
+		glUseProgram(shaderProgram);
+	if ((status = loadOutlineVertexShaderFromFile(vshad)) == 0)
+		glAttachShader(outlineShaderProgram, outlineVertexShader);
+	if ((status == 0) && (link(outlineShaderProgram) == 0))
+		glUseProgram(shaderProgram);
+}
+
 void loadFragmentShader(const char *fshad)
 {
 	int status = 0;
@@ -253,7 +266,7 @@ static int link(GLuint program)
 
 void shaderDrawGeom(void)
 {
-	glutSolidTorus(0.05, 0.1, 40, 40);
+	glutSolidTorus(0.05, 0.1, 4, 40);
 	/*glutSolidCone(0.1, 0.2, 20, 20);*/
 	/*
 	int res = 100;
@@ -346,6 +359,8 @@ void shaderKeyboardFunc(unsigned char key, int x, int y)
 		exit(0);
 	else if (key == 'v')
 		stringEntryMode(loadVertexShader);
+	else if (key == 'V')
+		stringEntryMode(loadBothVertexShaders);
 	else if (key == 'f')
 		stringEntryMode(loadFragmentShader);
 	else if (key == 'u')
