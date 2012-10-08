@@ -5,7 +5,7 @@
 #include "entry.h"
 
 void (*enterFuncCallback)(const char *str);
-char enteredStr[1024]; // TODO fixed size buf
+char enteredStr[1024]; /* TODO fixed size buf */
 int enteredChars;
 
 static void displayString(int x, int y, const char *str);
@@ -49,6 +49,7 @@ void entryDisplayFunc(void)
 
 void entryKeyboardFunc(unsigned char key, int x, int y)
 {
+	(void)x; (void)y;
 	if (key == 0x1B) {
 		shaderDisplayMode();
 	} else if ((key == '\n') || (key == '\r')) {
@@ -69,12 +70,6 @@ void entryKeyboardFunc(unsigned char key, int x, int y)
 
 void entryReshapeFunc(int w, int h)
 {
-	float ratio;
-
-	if (h == 0)
-		ratio = 0;
-	else
-		ratio = (float)w / h;
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	glViewport(0, 0, w, h);

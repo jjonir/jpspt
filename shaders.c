@@ -10,8 +10,8 @@
 
 GLuint shaderProgram, vertexShader, fragmentShader;
 GLuint outlineShaderProgram, outlineVertexShader, outlineFragmentShader;
-char vertexFile[1024]; /* TODO*/
-char fragmentFile[1024]; /* TODO dangerous (and wasteful) fixed-size buffers*/
+char vertexFile[1024]; /* TODO */
+char fragmentFile[1024]; /* TODO dangerous (and wasteful) fixed-size buffers */
 char outlineVertexFile[1024];
 char outlineFragmentFile[1024];
 
@@ -47,7 +47,7 @@ void loadShaders(const char *vshad, const char *fshad)
 		if (link(shaderProgram) == 0)
 			glUseProgram(shaderProgram);
 	}
-	//TODO consider not calling glUseProgram, but instead returning a success/failure indicator
+	/*TODO consider not calling glUseProgram, but instead returning a success/failure indicator*/
 }
 
 void loadOutlineShaders(const char *vshad, const char *fshad)
@@ -59,7 +59,7 @@ void loadOutlineShaders(const char *vshad, const char *fshad)
 		if (link(outlineShaderProgram) == 0)
 			glUseProgram(outlineShaderProgram);
 	}
-	//TODO see above
+	/*TODO see above*/
 }
 
 void loadVertexShader(const char *vshad)
@@ -349,7 +349,7 @@ void shaderKeyboardFunc(unsigned char key, int x, int y)
 	else if (key == 'f')
 		stringEntryMode(loadFragmentShader);
 	else if (key == 'u')
-		;//addShaderUniform();
+		{}/*addShaderUniform();*/
 }
 
 void shaderReshapeFunc(int w, int h)

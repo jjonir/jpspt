@@ -1,5 +1,5 @@
 CC = gcc
-OBJECTS = main.o shaders.o
+OBJECTS = main.o shaders.o entry.o
 CFLAGS = -Wall -Wextra -ansi -pedantic
 LDLIBS = -lglew32 -lfreeglut -lopengl32 -lglu32
 

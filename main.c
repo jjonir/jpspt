@@ -4,7 +4,6 @@
 #include <stdio.h>
 
 #include "shaders.h"
-//#include "entry.h"
 
 static int init(int *argc, char *argv[]);
 static void specialKey(int key, int x, int y);
