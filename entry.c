@@ -31,9 +31,10 @@ void stringEntryMode(void (*enterFunc)(const char *str))
 static void displayString(int x, int y, const char *str)
 {
 	int i = 0;
+	int w = glutGet(GLUT_WINDOW_WIDTH);
+	int h = glutGet(GLUT_WINDOW_HEIGHT);
 
-	glRasterPos2f((float)x / glutGet(GLUT_WINDOW_WIDTH),
-			(float)y / glutGet(GLUT_WINDOW_HEIGHT));
+	glRasterPos2f(x, h - y);
 	for (i = 0; str[i] != '\0'; i++) {
 		glutBitmapCharacter(GLUT_BITMAP_8_BY_13, str[i]);
 	}
@@ -41,9 +42,9 @@ static void displayString(int x, int y, const char *str)
 
 void entryDisplayFunc(void)
 {
-	glClearColor(0.5, 0.5, 0.5, 1.0);
+	glClearColor(*enteredStr/128.0, 0.5, 0.5, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	displayString(1, 30, enteredStr);
+	displayString(1, 80, enteredStr);
 	glutSwapBuffers();
 }
 
@@ -73,6 +74,6 @@ void entryReshapeFunc(int w, int h)
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	glViewport(0, 0, w, h);
-	glOrtho(0, 1, 0, 1, -1, 1);
+	glOrtho(0, w, 0, h, -10, 10); /* TODO z range is arbitrary */
 	glMatrixMode(GL_MODELVIEW);
 }
