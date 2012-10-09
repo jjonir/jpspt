@@ -15,6 +15,7 @@ char fragmentFile[1024]; /* TODO dangerous (and wasteful) fixed-size buffers */
 char outlineVertexFile[1024];
 char outlineFragmentFile[1024];
 
+static void updateShaderUniforms(GLuint program);
 static int loadVertexShaderFromFile(const char *filename);
 static int loadFragmentShaderFromFile(const char *filename);
 static int loadOutlineVertexShaderFromFile(const char *filename);
@@ -110,7 +111,7 @@ void shaderDisplayMode(void)
 	glutPostRedisplay();
 }
 
-void updateShaderUniforms(void)
+void updateShaderUniforms(GLuint program)
 {
 	GLint var;
 	float t;
@@ -120,10 +121,10 @@ void updateShaderUniforms(void)
 	width = glutGet(GLUT_WINDOW_WIDTH);
 	height = glutGet(GLUT_WINDOW_HEIGHT);
 
-	var = glGetUniformLocation(shaderProgram, "time");
+	var = glGetUniformLocation(program, "time");
 	glUniform1f(var, t);
 
-	var = glGetUniformLocation(shaderProgram, "resolution");
+	var = glGetUniformLocation(program, "resolution");
 	glUniform2i(var, width, height);
 }
 
@@ -266,7 +267,8 @@ static int link(GLuint program)
 
 void shaderDrawGeom(void)
 {
-	glutSolidTorus(0.05, 0.1, 4, 40);
+	glutSolidTorus(0.05, 0.1, 10, 10);
+	/*glutSolidTorus(0.05, 0.1, 4, 40);*/
 	/*glutSolidCone(0.1, 0.2, 20, 20);*/
 	/*
 	int res = 100;
@@ -321,8 +323,6 @@ void shaderDrawGeom(void)
 
 void shaderDisplayFunc(void)
 {
-	updateShaderUniforms();
-
 	glClearColor(0.2, 0.5, 0.1, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -337,7 +337,7 @@ void shaderDisplayFunc(void)
 	glDepthFunc(GL_LESS);
 	glCullFace(GL_BACK);
 	glUseProgram(shaderProgram);
-	updateShaderUniforms();
+	updateShaderUniforms(shaderProgram);
 	shaderDrawGeom();
 
 	glLineWidth(10);
@@ -345,6 +345,7 @@ void shaderDisplayFunc(void)
 	glDepthFunc(GL_LEQUAL);
 	glCullFace(GL_FRONT);
 	glUseProgram(outlineShaderProgram);
+	updateShaderUniforms(outlineShaderProgram);
 	shaderDrawGeom();
 
 	glutSwapBuffers();

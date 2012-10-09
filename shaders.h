@@ -8,6 +8,5 @@ void loadVertexShader(const char *vshad);
 void loadFragmentShader(const char *fshad);
 void reloadShaders(void);
 void shaderDisplayMode(void);
-void updateShaderUniforms(void);
 
 #endif
