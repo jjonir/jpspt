@@ -8,19 +8,24 @@
 #include "shaders.h"
 #include "entry.h"
 
-GLuint shaderProgram, vertexShader, fragmentShader;
-GLuint outlineShaderProgram, outlineVertexShader, outlineFragmentShader;
-char vertexFile[1024]; /* TODO */
-char fragmentFile[1024]; /* TODO dangerous (and wasteful) fixed-size buffers */
-char outlineVertexFile[1024];
-char outlineFragmentFile[1024];
+struct shader_program {
+	GLuint program;
+	GLuint vshad, fshad;
+	char *name;
+	char *vshadName, *fshadName;
+	char *vshadFileName, *fshadFileName;
+};
 
+struct shader_program fill;
+struct shader_program outline;
+
+static void initShader(struct shader_program *p);
+static void loadVertexShader(const char *vshad);
+static void loadFragmentShader(const char *fshad);
 static void updateShaderUniforms(GLuint program);
-static int loadVertexShaderFromFile(const char *filename);
-static int loadFragmentShaderFromFile(const char *filename);
-static int loadOutlineVertexShaderFromFile(const char *filename);
-static int loadOutlineFragmentShaderFromFile(const char *filename);
-static int loadShaderFromFile(const char *filename, GLuint shader);
+static int loadVertexShaderFromFile(struct shader_program *p, const char *filename);
+static int loadFragmentShaderFromFile(struct shader_program *p, const char *filename);
+static int loadShaderFromFile(GLuint shader, const char *filename);
 static int loadShaderFromFiles(GLuint shader, int n, ...);
 static int compile(GLuint shader);
 static int link(GLuint program);
@@ -28,76 +33,88 @@ static void shaderDisplayFunc(void);
 static void shaderKeyboardFunc(unsigned char key, int x, int y);
 static void shaderReshapeFunc(int w, int h);
 
+void initShader(struct shader_program *p)
+{
+	memset(p, 0, sizeof(struct shader_program));
+
+	p->program = glCreateProgram();
+	p->vshad = glCreateShader(GL_VERTEX_SHADER);
+	glAttachShader(p->program, p->vshad);
+	p->fshad = glCreateShader(GL_FRAGMENT_SHADER);
+	glAttachShader(p->program, p->fshad);
+}
 void initShaders(void)
 {
-	shaderProgram = glCreateProgram();
-	vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-
-	outlineShaderProgram = glCreateProgram();
-	outlineVertexShader = glCreateShader(GL_VERTEX_SHADER);
-	outlineFragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	initShader(&fill);
+	initShader(&outline);
 }
 
+int loadVertexShaderFromFile(struct shader_program *p, const char *filename)
+{
+	fprintf(stderr, "Loading vertex shader...\n");
+	if (p->vshadFileName)
+		free(p->vshadFileName);
+	p->vshadFileName = (char *)malloc(sizeof(char) * (strlen(filename) + 1));
+	strcpy(p->vshadFileName, filename);
+
+	return loadShaderFromFiles(p->vshad, 2, filename, "shaders/noise4d.glsl");
+}
+int loadFragmentShaderFromFile(struct shader_program *p, const char *filename)
+{
+	fprintf(stderr, "Loading fragment shader...\n");
+	if (p->fshadFileName)
+		free(p->fshadFileName);
+	p->fshadFileName = (char *)malloc(sizeof(char) * (strlen(filename) + 1));
+	strcpy(p->fshadFileName, filename);
+
+	return loadShaderFromFile(p->fshad, filename);
+}
 void loadShaders(const char *vshad, const char *fshad)
 {
-	if ((loadVertexShaderFromFile(vshad) == 0) &&
-		(loadFragmentShaderFromFile(fshad) == 0)) {
-		glAttachShader(shaderProgram, vertexShader);
-		glAttachShader(shaderProgram, fragmentShader);
-		if (link(shaderProgram) == 0)
-			glUseProgram(shaderProgram);
-	}
-	/*TODO consider not calling glUseProgram, but instead returning a success/failure indicator*/
+	if ((loadVertexShaderFromFile(&fill, vshad) == 0) &&
+			(loadFragmentShaderFromFile(&fill, fshad) == 0))
+		link(fill.program);
+	/*TODO consider returning a success/failure indicator*/
 }
 
 void loadOutlineShaders(const char *vshad, const char *fshad)
 {
-	if ((loadOutlineVertexShaderFromFile(vshad) == 0) &&
-		(loadOutlineFragmentShaderFromFile(fshad) == 0)) {
-		glAttachShader(outlineShaderProgram, outlineVertexShader);
-		glAttachShader(outlineShaderProgram, outlineFragmentShader);
-		if (link(outlineShaderProgram) == 0)
-			glUseProgram(outlineShaderProgram);
-	}
+	if ((loadVertexShaderFromFile(&outline, vshad) == 0) &&
+			(loadFragmentShaderFromFile(&outline, fshad) == 0))
+		link(outline.program);
 	/*TODO see above*/
 }
 
 void loadVertexShader(const char *vshad)
 {
-	int status = 0;
-	if ((status = loadVertexShaderFromFile(vshad)) == 0)
-		glAttachShader(shaderProgram, vertexShader);
-	if ((status == 0) && (link(shaderProgram) == 0))
-		glUseProgram(shaderProgram);
+	if (loadVertexShaderFromFile(&fill, vshad) == 0)
+		link(fill.program);
 }
 
 void loadBothVertexShaders(const char *vshad)
 {
-	int status = 0;
-	if ((status = loadVertexShaderFromFile(vshad)) == 0)
-		glAttachShader(shaderProgram, vertexShader);
-	if ((status == 0) && (link(shaderProgram) == 0))
-		glUseProgram(shaderProgram);
-	if ((status = loadOutlineVertexShaderFromFile(vshad)) == 0)
-		glAttachShader(outlineShaderProgram, outlineVertexShader);
-	if ((status == 0) && (link(outlineShaderProgram) == 0))
-		glUseProgram(shaderProgram);
+	if (loadVertexShaderFromFile(&fill, vshad) == 0)
+		link(fill.program);
+	if (loadVertexShaderFromFile(&outline, vshad) == 0)
+		link(outline.program);
 }
 
 void loadFragmentShader(const char *fshad)
 {
-	int status = 0;
-	if ((status = loadFragmentShaderFromFile(fshad)) == 0)
-		glAttachShader(shaderProgram, fragmentShader);
-	if ((status == 0) && (link(shaderProgram) == 0))
-		glUseProgram(shaderProgram);
+	if (loadFragmentShaderFromFile(&fill, fshad) == 0)
+		link(fill.program);
+}
+
+void loadOutlineFragmentShader(const char *fshad)
+{
+	if (loadFragmentShaderFromFile(&outline, fshad) == 0)
+		link(outline.program);
 }
 
 void reloadShaders(void)
 {
-	loadShaders(vertexFile, fragmentFile);
-	loadOutlineShaders(outlineVertexFile, outlineFragmentFile);
+	loadShaders(fill.vshadFileName, fill.fshadFileName);
+	loadOutlineShaders(outline.vshadFileName, outline.fshadFileName);
 }
 
 void shaderDisplayMode(void)
@@ -128,35 +145,7 @@ void updateShaderUniforms(GLuint program)
 	glUniform2i(var, width, height);
 }
 
-int loadVertexShaderFromFile(const char *filename)
-{
-	fprintf(stderr, "Loading vertex shader:\n");
-	strncpy(vertexFile, filename, 1024);
-	/*return loadShaderFromFile(filename, vertexShader);*/
-	return loadShaderFromFiles(vertexShader, 2, filename, "shaders/noise4D.glsl");
-}
-
-int loadFragmentShaderFromFile(const char *filename)
-{
-	fprintf(stderr, "Loading fragment shader:\n");
-	strncpy(fragmentFile, filename, 1024);
-	return loadShaderFromFile(filename, fragmentShader);
-}
-
-int loadOutlineVertexShaderFromFile(const char *filename)
-{
-	strncpy(outlineVertexFile, filename, 1024);
-	/*return loadShaderFromFile(filename, outlineVertexShader);*/
-	return loadShaderFromFiles(outlineVertexShader, 2, filename, "shaders/noise4D.glsl");
-}
-
-int loadOutlineFragmentShaderFromFile(const char *filename)
-{
-	strncpy(outlineFragmentFile, filename, 1024);
-	return loadShaderFromFile(filename, outlineFragmentShader);
-}
-
-int loadShaderFromFile(const char *filename, GLuint shader)
+int loadShaderFromFile(GLuint shader, const char *filename)
 {
 	char *shaderText;
 	FILE *shaderFile;
@@ -180,7 +169,7 @@ int loadShaderFromFile(const char *filename, GLuint shader)
 	glShaderSource(shader, 1, (const char **)&shaderText, &len);
 
 	if (compile(shader) == 0) {
-		fprintf(stderr, "loaded and compiled successfully.\n");
+		fprintf(stderr, "Loaded and compiled successfully.\n");
 		return 0;
 	} else {
 		return 1;
@@ -230,6 +219,8 @@ static int compile(GLuint shader)
 	char *infoLog;
 	int logLen;
 
+	fprintf(stderr, "\tCompiling shader...\n");
+
 	glCompileShader(shader);
 	glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
 	if (status != GL_TRUE) {
@@ -240,6 +231,8 @@ static int compile(GLuint shader)
 		return 1;
 	}
 
+	fprintf(stderr, "\tCompiled successfully.\n");
+
 	return 0;
 }
 
@@ -249,7 +242,7 @@ static int link(GLuint program)
 	char *infoLog;
 	int logLen;
 
-	fprintf(stderr, "Linking shaders:\n");
+	fprintf(stderr, "Linking shader program...\n");
 
 	glLinkProgram(program);
 	glGetProgramiv(program, GL_LINK_STATUS, &status);
@@ -261,7 +254,7 @@ static int link(GLuint program)
 		return 1;
 	}
 
-	fprintf(stderr, "linked successfully.\n");
+	fprintf(stderr, "Linked successfully.\n");
 	return 0;
 }
 
@@ -336,16 +329,16 @@ void shaderDisplayFunc(void)
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glDepthFunc(GL_LESS);
 	glCullFace(GL_BACK);
-	glUseProgram(shaderProgram);
-	updateShaderUniforms(shaderProgram);
+	glUseProgram(fill.program);
+	updateShaderUniforms(fill.program);
 	shaderDrawGeom();
 
 	glLineWidth(10);
 	glPolygonMode(GL_BACK, GL_LINE);
 	glDepthFunc(GL_LEQUAL);
 	glCullFace(GL_FRONT);
-	glUseProgram(outlineShaderProgram);
-	updateShaderUniforms(outlineShaderProgram);
+	glUseProgram(outline.program);
+	updateShaderUniforms(outline.program);
 	shaderDrawGeom();
 
 	glutSwapBuffers();
@@ -364,6 +357,8 @@ void shaderKeyboardFunc(unsigned char key, int x, int y)
 		stringEntryMode(loadBothVertexShaders);
 	else if (key == 'f')
 		stringEntryMode(loadFragmentShader);
+	else if (key == 'o')
+		stringEntryMode(loadOutlineFragmentShader);
 	else if (key == 'u')
 		{}/*addShaderUniform();*/
 }

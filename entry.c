@@ -31,7 +31,6 @@ void stringEntryMode(void (*enterFunc)(const char *str))
 static void displayString(int x, int y, const char *str)
 {
 	int i = 0;
-	int w = glutGet(GLUT_WINDOW_WIDTH);
 	int h = glutGet(GLUT_WINDOW_HEIGHT);
 
 	glRasterPos2f(x, h - y);
