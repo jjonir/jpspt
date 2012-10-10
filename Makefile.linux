@@ -1,0 +1,12 @@
+CC = gcc
+OBJECTS = main.o shaders.o entry.o
+CFLAGS = -Wall -Wextra -ansi -pedantic
+LDLIBS = -lGLEW -lglut -lGL -lGLU
+RM = rm -f
+
+all: jpspt
+
+jpspt: $(OBJECTS)
+
+clean:
+	$(RM) jpspt $(OBJECTS)

@@ -57,7 +57,7 @@ int loadVertexShaderFromFile(struct shader_program *p, const char *filename)
 	p->vshadFileName = (char *)malloc(sizeof(char) * (strlen(filename) + 1));
 	strcpy(p->vshadFileName, filename);
 
-	return loadShaderFromFiles(p->vshad, 2, filename, "shaders/noise4d.glsl");
+	return loadShaderFromFiles(p->vshad, 2, filename, "shaders/noise4D.glsl");
 }
 int loadFragmentShaderFromFile(struct shader_program *p, const char *filename)
 {
