@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 #include "shaders.h"
+#include "animation.h"
 
 static int init(int *argc, char *argv[]);
 static void specialKey(int key, int x, int y);
@@ -14,8 +15,6 @@ int main(int argc, char *argv[])
 		return 1;
 
 	initShaders();
-	loadShaders("shaders/wiggle.vshad", "shaders/colors.fshad");
-	loadOutlineShaders("shaders/wiggle.vshad", "shaders/black.fshad");
 
 	shaderDisplayMode();
 
@@ -50,7 +49,7 @@ void specialKey(int key, int x, int y)
 {
 	(void)x; (void)y;
 	if (key == GLUT_KEY_F5)
-		reloadShaders();
+		reloadAllShaders();
 	if (key == GLUT_KEY_F11)
 		glutFullScreen();
 }

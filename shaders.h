@@ -2,12 +2,12 @@
 #define SHADERS_H
 
 struct shader_program;
-typedef struct shader_program shader_program_t;
+typedef struct shader_program * shader_program_t;
 
-void initShaders(void);
-void loadShaders(const char *vshad, const char *fshad);
-void loadOutlineShaders(const char *vshad, const char *fshad);
-void reloadShaders(void);
-void shaderDisplayMode(void);
+shader_program_t newShader(const char *vshad, const char *fshad);
+int changeVertexShader(shader_program_t p, const char *vshad);
+int changeFragmentShader(shader_program_t p, const char *fshad);
+void reloadShaders(shader_program_t p);
+void switchToShader(shader_program_t p);
 
 #endif
