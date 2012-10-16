@@ -5,6 +5,8 @@
 #include <string.h>
 #include <stdarg.h>
 
+#include <math.h>
+
 #include "shaders.h"
 
 struct shader_program {
@@ -129,6 +131,14 @@ void updateShaderUniforms(GLuint program)
 
 	var = glGetUniformLocation(program, "resolution");
 	glUniform2i(var, width, height);
+
+	var = glGetUniformLocation(program, "pos");
+	glUniform3f(var, 15.0 * cos(t / 10.0),
+				15.0 * sin(t / 10.0),
+				3.0 * sin(t / 4.0));
+
+	var = glGetUniformLocation(program, "fade");
+	glUniform1f(var, 1.0);
 }
 
 int loadShaderFromFile(GLuint shader, const char *filename)

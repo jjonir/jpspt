@@ -1,0 +1,167 @@
+#version 120
+uniform ivec2 resolution;
+uniform vec3 pos;
+uniform float time;
+uniform float fade;
+
+float ease(in float p)
+{
+	return 3.0*p*p - 2.0*p*p*p;
+}
+
+vec4 map(in vec3 p, in bool norm)
+{
+	vec3 c = vec3(2.0, 2.0, 25.0);
+	vec3 bbox = vec3(7.0, 7.0, 2.0);
+	vec3 bbpos = vec3(-1.0, 1.0, 12.5);
+
+	float cx = floor(p.x/c.x)+1.0;
+	float cy = floor(p.y/c.y);
+
+	vec3 q = mod(p,c) - 0.5*c;
+	vec3 b = vec3(0.7, 0.7, 0.7);
+	float bb = length(max(abs(p-bbpos)-bbox,0.0));
+	vec3  di = abs(q) - b;
+	float mc = max(max(di.x,di.y),di.z);
+	float cub = min(mc,length(max(di,0.0))-0.2);
+	if (!norm) cub = max(cub,bb);
+
+	float f = dot(p, vec3(0.0, 1.0, 0.0)) + 6.0;
+	float d = min(cub,f);
+
+	return (d == f) ? vec4(d, -10.0, -10.0, 0.0) : vec4(d, cx, cy, 0.0);
+}
+
+vec4 intersect(in vec3 ro, in vec3 rd)
+{
+	float t = 0.0;
+	vec4 res = vec4(-1.0);
+	for (float i=0.0;i<64.0;i++) {
+		vec4 h = map(ro + rd*t,false);
+		if (h.x<0.002 && res.x<0.0) {
+			res = vec4(t,h.yz,i);
+			i = 64.0;
+		}
+		t += h.x*pow(1.01,i);
+	}
+	return res;
+}
+
+vec3 calcNormal(in vec3 pos)
+{
+	vec3  eps = vec3(.005,0.0,0.0);
+	vec3 nor;
+	nor.x = map(pos+eps.xyy,true).x - map(pos-eps.xyy,true).x;
+	nor.y = map(pos+eps.yxy,true).x - map(pos-eps.yxy,true).x;
+	nor.z = map(pos+eps.yyx,true).x - map(pos-eps.yyx,true).x;
+	return normalize(nor);
+}
+
+bool inAt(in float x, in float y)
+{
+	bool ret = false;
+	if (abs(x) < 0.1 && abs(y) < 0.1) ret = false;
+	else if (abs(x-2.0) < 0.1 && abs(y+1.0) < 0.1) ret = true;
+	else if (abs(x-3.0) < 0.1 && abs(y+2.0) < 0.1) ret = false;
+	else if (abs(x) <= 1.0 && abs(y) <= 1.0) ret = true;
+	else if (abs(x) <= 2.0 && abs(y) <= 2.0) ret = false;
+	else if (abs(x) == 3.0 && abs(y) == 3.0) ret = false;
+	else if (abs(x) <= 3.0 && abs(y) <= 3.0) ret = true;
+	return ret;
+}
+
+vec3 skyCol(in vec3 rd, in vec3 sunpos, in float t)
+{
+	float dt = clamp(t,0.0,1.3);
+	float nt = clamp(t-1.1,0.2,1.2);
+
+	vec3 col = vec3(0.6, 0.7, 0.9);
+	float sun = max(pow(clamp(dot(rd,sunpos),0.0,1.0),16.0),0.0);
+
+	col += vec3(0.6,0.6,0.4)*sun;
+	vec3 daycol = vec3(0.5,0.5,0.5)*pow(0.7-clamp(rd.y,0.0,1.0),3.0);
+	vec3 setcol = vec3(0.7,0.0,-0.6)*(pow(0.7-clamp(rd.y,0.0,1.0),3.0)+0.3*rd.z);
+	col += mix(daycol,setcol,dt*dt*dt);
+	col = mix(col,vec3(0.0,0.0,0.1),ease(nt-0.2));
+
+	return col;
+}
+
+vec3 lamb(in vec3 norm, in vec3 light)
+{
+	float dif1 = max(0.4 + 0.6*dot(norm,light),0.0);
+	vec3 col  = vec3(0.2,0.2,0.2);
+	col += 2.0*dif1*vec3(1.0,0.97,0.85);
+	col += 1.0*(0.5+0.5*norm.y)*vec3(0.1,0.15,0.2);
+	return col;
+}
+
+vec3 matCol(in vec4 mat)
+{
+	if (inAt(mat.y, mat.z)) return vec3(0.1);
+	else if (mat.y == -10.0) return vec3(0.4);
+	else return vec3(0.9);
+}
+
+void main(void)
+{
+	vec2 p = -1.0 + 2.0 * gl_FragCoord.xy / vec2(resolution.xy);
+	p.x *= vec2(resolution).x/vec2(resolution).y;
+
+	float t = 0.1*(25.0-time);
+
+	// light
+	vec3 light = normalize(vec3(0.0,1.0-t,1.0));
+	vec3 lightcol = skyCol(normalize(vec3(0.0,1.0,1.0)),light,t);
+
+	// camera
+	vec3 ro = pos;
+	vec3 ww = normalize(vec3(1.0,1.0,12.5) - ro);
+	vec3 uu = normalize(cross(vec3(0.0,1.0,0.0), ww));
+	vec3 vv = normalize(cross(ww,uu));
+	vec3 rd = normalize(p.x*uu + p.y*vv + 1.5*ww);
+
+	vec3 col = vec3(0.0);
+	vec4 tmat = intersect(ro,rd);
+	if (tmat.x>0.0) {
+		vec3 pos = ro + tmat.x*rd;
+		vec3 nor = calcNormal(pos);
+		vec3 rr = reflect(rd,nor);
+
+		vec4 rmat = intersect(pos+0.1*rr,rr);
+
+		if (rmat.x>0.0) {
+			vec3 rpos = pos + rmat.x*rr;
+			vec3 rnor = calcNormal(rpos);
+			vec3 rr2 = reflect(rr,rnor);
+
+			vec4 rmat2 = intersect(rpos+0.1*rr2,rr2);
+
+			if (rmat2.x>0.0) {
+				vec3 rpos2 = rpos + rmat2.x*rr2;
+				vec3 rnor2 = calcNormal(rpos2);
+				col = lamb(rnor2, light);
+				col *= matCol(rmat2);
+				col *= vec3(0.2,0.2,0.3);
+			} else {
+				col = skyCol(rr2,light,t);
+			}
+			col *= matCol(rmat);
+		} else {
+			col = skyCol(rr,light,t);
+		}
+		col *= matCol(tmat);
+		if (tmat.y==-10.0)
+			col = mix(col,matCol(tmat),0.6);
+
+		// shadow
+		//float ldis = 4.0;
+		//vec4 shadow = intersect(pos + light*ldis, -light);
+		//if(shadow.x>0.0 && shadow.x<(ldis-0.01)) dif1=0.0;
+
+		col *= lightcol;
+	} else {
+		col = skyCol(rd,light,t);
+	}
+	gl_FragColor = vec4(col*clamp(fade,0.0,1.0),1.0);
+}

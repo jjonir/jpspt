@@ -19,7 +19,7 @@ static void shaderReshapeFunc(int w, int h);
 
 void initShaders(void)
 {
-	fill = newShader("shaders/wiggle.vshad", "shaders/colors.fshad");
+	fill = newShader("shaders/wiggle.vshad", "shaders/cubes.fshad");
 	outline = newShader("shaders/wiggle.vshad", "shaders/black.fshad");
 }
 
@@ -63,7 +63,10 @@ void shaderDisplayMode(void)
 
 void shaderDrawGeom(void)
 {
-	glutSolidTorus(0.1, 0.5, 90, 90);
+	/* GLUT's teapot is inside-out, this looks terrible */
+	/*glutSolidTeapot(0.5);*/
+	glutSolidTorus(0.3, 0.8, 50, 50);
+	/*glutSolidTorus(0.1, 0.5, 90, 90);*/
 	/*glutSolidTorus(0.05, 0.1, 4, 40);*/
 	/*glutSolidCone(0.1, 0.2, 20, 20);*/
 	/*
@@ -124,7 +127,8 @@ void shaderDisplayFunc(void)
 
 	glLoadIdentity();
 	glTranslatef(0, 0, -2.0);
-	glRotatef(20 * (float)glutGet(GLUT_ELAPSED_TIME) / 1000, 0, 1, 0);
+	glRotatef(200 * (float)glutGet(GLUT_ELAPSED_TIME) / 1000, 0, 1, 0);
+	glRotatef(-20 * (float)glutGet(GLUT_ELAPSED_TIME) / 1000, 1, 0, 0);
 
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
