@@ -18,7 +18,6 @@ struct shader_program {
 };
 
 static void initShader(struct shader_program *p);
-static void updateShaderUniforms(GLuint program);
 static int loadShaders(struct shader_program *p, const char *vshad, const char *fshad);
 static int loadShaderFromFile(GLuint shader, const char *filename);
 static int loadShaderFromFiles(GLuint shader, int n, ...);
@@ -113,31 +112,32 @@ int changeFragmentShader(struct shader_program *p, const char *fshad)
 void switchToShader(struct shader_program *p)
 {
 	glUseProgram(p->program);
-	updateShaderUniforms(p->program);
 }
 
-void updateShaderUniforms(GLuint program)
+void updateShaderUniforms(struct shader_program *p)
 {
 	GLint var;
 	float t;
 	int width, height;
 
+	glUseProgram(p->program);
+
 	t = (float)glutGet(GLUT_ELAPSED_TIME) / 1000;
 	width = glutGet(GLUT_WINDOW_WIDTH);
 	height = glutGet(GLUT_WINDOW_HEIGHT);
 
-	var = glGetUniformLocation(program, "time");
+	var = glGetUniformLocation(p->program, "time");
 	glUniform1f(var, t);
 
-	var = glGetUniformLocation(program, "resolution");
+	var = glGetUniformLocation(p->program, "resolution");
 	glUniform2i(var, width, height);
 
-	var = glGetUniformLocation(program, "pos");
+	var = glGetUniformLocation(p->program, "pos");
 	glUniform3f(var, 15.0 * cos(t / 10.0),
 				15.0 * sin(t / 10.0),
 				3.0 * sin(t / 4.0));
 
-	var = glGetUniformLocation(program, "fade");
+	var = glGetUniformLocation(p->program, "fade");
 	glUniform1f(var, 1.0);
 }
 

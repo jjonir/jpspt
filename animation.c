@@ -133,6 +133,9 @@ void shaderDisplayFunc(void)
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
 
+	updateShaderUniforms(fill);
+	updateShaderUniforms(outline);
+
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glDepthFunc(GL_LESS);
 	glCullFace(GL_BACK);

@@ -9,5 +9,6 @@ int changeVertexShader(shader_program_t p, const char *vshad);
 int changeFragmentShader(shader_program_t p, const char *fshad);
 void reloadShaders(shader_program_t p);
 void switchToShader(shader_program_t p);
+void updateShaderUniforms(shader_program_t p);
 
 #endif
