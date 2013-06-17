@@ -65,7 +65,7 @@ void shaderDrawGeom(void)
 {
 	/* GLUT's teapot is inside-out, this looks terrible */
 	/*glutSolidTeapot(0.5);*/
-	glutSolidTorus(0.3, 0.8, 50, 50);
+	/*glutSolidTorus(0.3, 0.8, 50, 50);*/
 	/*glutSolidTorus(0.1, 0.5, 90, 90);*/
 	/*glutSolidTorus(0.05, 0.1, 4, 40);*/
 	/*glutSolidCone(0.1, 0.2, 20, 20);*/
@@ -90,8 +90,7 @@ void shaderDrawGeom(void)
 		glVertex3f( 1, -1, -1);
 		glVertex3f( 1,  1, -1);
 		glVertex3f(-1,  1, -1);
-	*/
-	/*
+	
 		glVertex3f( 1, -1, -1);
 		glVertex3f( 1, -1, -3);
 		glVertex3f( 1,  1, -3);
@@ -118,17 +117,27 @@ void shaderDrawGeom(void)
 		glVertex3f( 1,  1, -1);
 	glEnd();
 	*/
+	glBegin(GL_QUADS);
+		glVertex3f(-1, 1, -1);
+		glVertex3f(-1, -1, -1);
+		glVertex3f(1, -1, -1);
+		glVertex3f(1, 1, -1);
+	glEnd();
 }
 
+float dz = 0;
 void shaderDisplayFunc(void)
 {
 	glClearColor(0.2, 0.5, 0.1, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glLoadIdentity();
-	glTranslatef(0, 0, -2.0);
+	glTranslatef(0, 0, -4.0);
+	glTranslatef(0, 0, dz);
+/*
 	glRotatef(200 * (float)glutGet(GLUT_ELAPSED_TIME) / 1000, 0, 1, 0);
 	glRotatef(-20 * (float)glutGet(GLUT_ELAPSED_TIME) / 1000, 1, 0, 0);
+*/
 
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
@@ -169,6 +178,10 @@ void shaderKeyboardFunc(unsigned char key, int x, int y)
 		stringEntryMode(loadOutlineFragmentShader);
 	else if (key == 'u')
 		{}/*addShaderUniform();*/
+	else if (key == 'w')
+		dz += 0.1;
+	else if (key == 's')
+		dz -= 0.1;
 }
 
 void shaderReshapeFunc(int w, int h)
