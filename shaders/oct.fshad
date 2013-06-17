@@ -1,0 +1,43 @@
+uniform float time;
+uniform ivec2 resolution;
+
+void main(void)
+{
+	ivec2 pos, posm;
+	vec2 posf, sub;
+	vec2 scale;
+
+	scale = vec2(abs(mod(time, 21.0) - 10.0) + 1.0);
+
+	posf = gl_FragCoord.xy;
+	posf -= vec2(resolution) / vec2(2.0, 2.0);
+	posf += vec2(100.0*cos(time/2.0), 100.0*sin(time*2.0));
+	posf = vec2(posf.x*cos(time)-posf.y*sin(time),
+			posf.y*cos(time)+posf.x*sin(time));
+
+	//while (posf.x < 0.0) posf.x += 4.0;
+	//while (posf.y < 0.0) posf.y += 4.0;
+	pos = ivec2(posf / scale);
+	posm = ivec2(mod(vec2(pos), 4.0));
+	sub = fract(posf / scale);
+
+	if (((posm.x == 0) && (posm.y == 0)) ||
+	    ((posm.x == 2) && (posm.y == 2)))
+		gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+	else if ((posm.x == 0) ||
+	         ((posm.y == 2) && ((posm.x == 1) || (posm.x == 3))) ||
+	         ((posm.x == 1) && ((posm.y == 1) && (sub.y > sub.x))) ||
+	         ((posm.x == 1) && ((posm.y == 3) && ((sub.y + sub.x) < 1.0))) ||
+	         ((posm.x == 3) && ((posm.y == 1) && ((sub.y + sub.x) > 1.0))) ||
+	         ((posm.x == 3) && ((posm.y == 3) && (sub.y < sub.x))))
+		gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);
+	else if ((posm.y == 0) ||
+	         ((posm.x == 2) && ((posm.y == 1) || (posm.y == 3))) ||
+	         ((posm.y == 1) && ((posm.x == 1) && (sub.x > sub.y))) ||
+	         ((posm.y == 1) && ((posm.x == 3) && ((sub.x + sub.y) < 1.0))) ||
+	         ((posm.y == 3) && ((posm.x == 1) && ((sub.x + sub.y) > 1.0))) ||
+	         ((posm.y == 3) && ((posm.x == 3) && (sub.x < sub.y))))
+		gl_FragColor = vec4(0.0, 0.0, 1.0, 1.0);
+	else
+		gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+}
