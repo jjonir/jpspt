@@ -25,6 +25,8 @@ void stringEntryMode(void (*enterFunc)(const char *str))
 
 	glutDisplayFunc(entryDisplayFunc);
 	glutKeyboardFunc(entryKeyboardFunc);
+	glutMouseFunc(NULL);
+	glutMotionFunc(NULL);
 	glutReshapeFunc(entryReshapeFunc);
 	entryReshapeFunc(glutGet(GLUT_WINDOW_WIDTH),
 				glutGet(GLUT_WINDOW_HEIGHT));
