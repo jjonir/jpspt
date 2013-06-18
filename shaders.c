@@ -127,18 +127,22 @@ void updateShaderUniforms(struct shader_program *p)
 	height = glutGet(GLUT_WINDOW_HEIGHT);
 
 	var = glGetUniformLocation(p->program, "time");
-	glUniform1f(var, t);
+	if (var != -1)
+		glUniform1f(var, t);
 
 	var = glGetUniformLocation(p->program, "resolution");
-	glUniform2i(var, width, height);
+	if (var != -1)
+		glUniform2i(var, width, height);
 
 	var = glGetUniformLocation(p->program, "pos");
-	glUniform3f(var, 15.0 * cos(t / 10.0),
+	if (var != -1)
+		glUniform3f(var, 15.0 * cos(t / 10.0),
 				15.0 * sin(t / 10.0),
 				3.0 * sin(t / 4.0));
 
 	var = glGetUniformLocation(p->program, "fade");
-	glUniform1f(var, 1.0);
+	if (var != -1)
+		glUniform1f(var, 1.0);
 }
 
 int loadShaderFromFile(GLuint shader, const char *filename)

@@ -21,6 +21,8 @@ static void entryReshapeFunc(int w, int h);
 
 void stringEntryMode(void (*enterFunc)(const char *str))
 {
+	glUseProgram(0);
+
 	glutDisplayFunc(entryDisplayFunc);
 	glutKeyboardFunc(entryKeyboardFunc);
 	glutReshapeFunc(entryReshapeFunc);
@@ -36,11 +38,9 @@ void stringEntryMode(void (*enterFunc)(const char *str))
 
 static void displayString(int x, int y, const char *str)
 {
-	int i = 0;
-	int h = glutGet(GLUT_WINDOW_HEIGHT);
+	int i;
 
-	/*glRasterPos2f(x, h - y);*/
-	glRasterPos2f(x, y);
+	glRasterPos2i(x, y);
 	for (i = 0; str[i] != '\0'; i++) {
 		glutBitmapCharacter(GLUT_BITMAP_8_BY_13, str[i]);
 	}
@@ -77,8 +77,8 @@ static void displayCompletions(const char *str)
 	do {
 		if ((dp = readdir(dirp)) != NULL) {
 			if (strncmp(dp->d_name, s, strlen(s)) == 0) {
-				fprintf(stderr, "%s\n", dp->d_name);
-				displayString(i, (100 + i) * 1, dp->d_name);
+/* TODO display foo/ if foo is a directory */
+				displayString(10, (2 + i) * 20, dp->d_name);
 				i++;
 			}
 		}
@@ -89,16 +89,12 @@ static void displayCompletions(const char *str)
 }
 
 void entryDisplayFunc(void)
-{int i;
+{
 	glClearColor(0.5, 0.5, 0.5, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
-/*
-	displayString(1, 80, enteredStr);
+	displayString(1, 20, enteredStr);
 	displayCompletions(enteredStr);
-*/
-for (i = 30; i < 31; i++)
-displayString(1,i,"foo");
 
 	glutSwapBuffers();
 }
@@ -129,6 +125,6 @@ void entryReshapeFunc(int w, int h)
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	glViewport(0, 0, w, h);
-	glOrtho(0, w, 0, h, -10, 10); /* TODO z range is arbitrary */
+	glOrtho(0, w, h, 0, -1, 1); /* TODO z range is arbitrary */
 	glMatrixMode(GL_MODELVIEW);
 }
