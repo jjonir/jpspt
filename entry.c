@@ -1,7 +1,7 @@
 #include <GL/glew.h>
 #include <GL/glut.h>
 #include <stdlib.h>
-#ifndef _WIN32
+#if !defined(_WIN32) || defined(WITH_DIRENT)
 #include <dirent.h>
 #include <errno.h>
 #include <stdio.h>
@@ -16,7 +16,9 @@ void (*enterFuncCallback)(const char *str);
 char enteredStr[1024]; /* TODO fixed size buf */
 int enteredChars;
 
+#if !defined(_WIN32) || defined(WITH_DIRENT)
 static void displayCompletions(const char *str);
+#endif
 static void displayString(int x, int y, const char *str);
 static void entryDisplayFunc(void);
 static void entryKeyboardFunc(unsigned char key, int x, int y);
@@ -51,7 +53,7 @@ static void displayString(int x, int y, const char *str)
 	}
 }
 
-#ifndef _WIN32
+#if !defined(_WIN32) || defined(WITH_DIRENT)
 static void displayCompletions(const char *str)
 {
 	const char dot[4] = ".";
@@ -101,7 +103,7 @@ void entryDisplayFunc(void)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
 	displayString(1, 20, enteredStr);
-#ifndef _WIN32
+#if !defined(_WIN32) || defined(WITH_DIRENT)
 	displayCompletions(enteredStr);
 #endif
 
