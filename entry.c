@@ -1,9 +1,12 @@
 #include <GL/glew.h>
 #include <GL/glut.h>
+#include <stdlib.h>
+#ifndef _WIN32
 #include <dirent.h>
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
+#endif
 
 #include "animation.h"
 #include "shaders.h"
@@ -48,6 +51,7 @@ static void displayString(int x, int y, const char *str)
 	}
 }
 
+#ifndef _WIN32
 static void displayCompletions(const char *str)
 {
 	const char dot[4] = ".";
@@ -89,6 +93,7 @@ static void displayCompletions(const char *str)
 
 	closedir(dirp); /* TODO closedir error? */
 }
+#endif
 
 void entryDisplayFunc(void)
 {
@@ -96,7 +101,9 @@ void entryDisplayFunc(void)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
 	displayString(1, 20, enteredStr);
+#ifndef _WIN32
 	displayCompletions(enteredStr);
+#endif
 
 	glutSwapBuffers();
 }
