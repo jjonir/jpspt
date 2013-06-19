@@ -69,70 +69,86 @@ void shaderDisplayMode(void)
 	glutPostRedisplay();
 }
 
+enum geoms {
+	TEAPOT, TORUS1, TORUS2, TORUS3, CONE, GRID, BOX, QUAD, NUM_GEOMS
+};
+int geom = TORUS1;
 void shaderDrawGeom(void)
 {
-	/* GLUT's teapot is inside-out, this looks terrible */
-	/*glutSolidTeapot(0.5);*/
-	glutSolidTorus(0.3, 0.8, 50, 50);
-	/*glutSolidTorus(0.1, 0.5, 90, 90);*/
-	/*glutSolidTorus(0.05, 0.1, 4, 40);*/
-	/*glutSolidCone(0.1, 0.2, 20, 20);*/
-	/*
 	int res = 100;
 	int i, j;
 
-	glBegin(GL_QUADS);
-		for (i = 0; i < res; i++) {
-			for (j = 0; j < res; j++) {
-				glVertex3f(-1+2*i/res,     -1+2*j/res, -1);
-				glVertex3f(-1+2*(i+1)/res, -1+2*j/res, -1);
-				glVertex3f(-1+2*(i+1)/res, -1+2*(j+1)/res, -1);
-				glVertex3f(-1+2*i/res,     -1+2*(j+1)/res, -1);
+	switch (geom) {
+	case 0:
+		/* GLUT's teapot is inside-out, this looks terrible */
+		glutSolidTeapot(0.5);
+		break;
+	case 1:
+		glutSolidTorus(0.3, 0.8, 50, 50);
+		break;
+	case 2:
+		glutSolidTorus(0.1, 0.5, 90, 90);
+		break;
+	case 3:
+		glutSolidTorus(0.05, 0.1, 4, 40);
+		break;
+	case 4:
+		glutSolidCone(0.1, 0.2, 20, 20);
+		break;
+	case 5:
+		glBegin(GL_QUADS);
+			for (i = 0; i < res; i++) {
+				for (j = 0; j < res; j++) {
+					glVertex3f(-1+2*i/res,     -1+2*j/res, -1);
+					glVertex3f(-1+2*(i+1)/res, -1+2*j/res, -1);
+					glVertex3f(-1+2*(i+1)/res, -1+2*(j+1)/res, -1);
+					glVertex3f(-1+2*i/res,     -1+2*(j+1)/res, -1);
+				}
 			}
-		}
-	glEnd();
-	*/
-	/*
-	glBegin(GL_QUADS);
-		glVertex3f(-1, -1, -1);
-		glVertex3f( 1, -1, -1);
-		glVertex3f( 1,  1, -1);
-		glVertex3f(-1,  1, -1);
-	
-		glVertex3f( 1, -1, -1);
-		glVertex3f( 1, -1, -3);
-		glVertex3f( 1,  1, -3);
-		glVertex3f( 1,  1, -1);
+		glEnd();
+		break;
+	case 6:
+		glBegin(GL_QUADS);
+			glVertex3f(-1, -1, -1);
+			glVertex3f( 1, -1, -1);
+			glVertex3f( 1,  1, -1);
+			glVertex3f(-1,  1, -1);
 
-		glVertex3f( 1, -1, -3);
-		glVertex3f(-1, -1, -3);
-		glVertex3f(-1,  1, -3);
-		glVertex3f( 1,  1, -3);
+			glVertex3f( 1, -1, -1);
+			glVertex3f( 1, -1, -3);
+			glVertex3f( 1,  1, -3);
+			glVertex3f( 1,  1, -1);
 
-		glVertex3f(-1, -1, -3);
-		glVertex3f(-1, -1, -1);
-		glVertex3f(-1,  1, -1);
-		glVertex3f(-1,  1, -3);
+			glVertex3f( 1, -1, -3);
+			glVertex3f(-1, -1, -3);
+			glVertex3f(-1,  1, -3);
+			glVertex3f( 1,  1, -3);
 
-		glVertex3f(-1,  1, -1);
-		glVertex3f( 1,  1, -1);
-		glVertex3f( 1,  1, -3);
-		glVertex3f(-1,  1, -3);
+			glVertex3f(-1, -1, -3);
+			glVertex3f(-1, -1, -1);
+			glVertex3f(-1,  1, -1);
+			glVertex3f(-1,  1, -3);
 
-		glVertex3f(-1,  1, -1);
-		glVertex3f(-1,  1, -3);
-		glVertex3f( 1,  1, -3);
-		glVertex3f( 1,  1, -1);
-	glEnd();
-	*/
-/*
-	glBegin(GL_QUADS);
-		glVertex3f(-1, 1, -1);
-		glVertex3f(-1, -1, -1);
-		glVertex3f(1, -1, -1);
-		glVertex3f(1, 1, -1);
-	glEnd();
-*/
+			glVertex3f(-1,  1, -1);
+			glVertex3f( 1,  1, -1);
+			glVertex3f( 1,  1, -3);
+			glVertex3f(-1,  1, -3);
+
+			glVertex3f(-1,  1, -1);
+			glVertex3f(-1,  1, -3);
+			glVertex3f( 1,  1, -3);
+			glVertex3f( 1,  1, -1);
+		glEnd();
+		break;
+	case 7:
+		glBegin(GL_QUADS);
+			glVertex3f(-1, 1, -1);
+			glVertex3f(-1, -1, -1);
+			glVertex3f(1, -1, -1);
+			glVertex3f(1, 1, -1);
+		glEnd();
+		break;
+	}
 }
 
 float dz = 0;
@@ -197,6 +213,8 @@ void shaderKeyboardFunc(unsigned char key, int x, int y)
 		dz += 0.1;
 	else if (key == 's')
 		dz -= 0.1;
+	else if (key == '\t')
+		geom = (geom + 1) % NUM_GEOMS;
 }
 
 void shaderMouseFunc(int button, int state, int x, int y)
