@@ -1,5 +1,9 @@
 #include <GL/glew.h>
+#ifdef USING_FREEGLUT
+#include <GL/freeglut.h>
+#else
 #include <GL/glut.h>
+#endif
 
 #include "animation.h"
 #include "shaders.h"
@@ -25,8 +29,8 @@ int prevx = 0, prevy = 0;
 
 void initShaders(void)
 {
-	fill = newShader("shaders/wiggle.vshad", "shaders/cubes.fshad");
-	outline = newShader("shaders/wiggle.vshad", "shaders/black.fshad");
+	fill = newShader("shaders/spin.vshad", "shaders/phong.fshad");
+	outline = newShader("shaders/spin.vshad", "shaders/phong.fshad");
 }
 
 void loadVertexShader(const char *vshad)
@@ -70,7 +74,16 @@ void shaderDisplayMode(void)
 }
 
 enum geoms {
-	TEAPOT, TORUS1, TORUS2, TORUS3, CONE, GRID, BOX, QUAD, NUM_GEOMS
+	TORUS1, TORUS2, TORUS3, CONE, GRID, BOX, QUAD, CUBE, SPHERE,
+	TETRAHEDRON, OCTAHEDRON, DODECAHEDRON, ICOSAHEDRON,
+#ifdef USING_FREEGLUT
+	RHOMBIC_DODECAHEDRON,
+/*
+	TEACUP, TEASPOON,
+*/
+#endif
+	TEAPOT,
+	NUM_GEOMS
 };
 int geom = TORUS1;
 void shaderDrawGeom(void)
@@ -79,23 +92,19 @@ void shaderDrawGeom(void)
 	int i, j;
 
 	switch (geom) {
-	case 0:
-		/* GLUT's teapot is inside-out, this looks terrible */
-		glutSolidTeapot(0.5);
-		break;
-	case 1:
+	case TORUS1:
 		glutSolidTorus(0.3, 0.8, 50, 50);
 		break;
-	case 2:
+	case TORUS2:
 		glutSolidTorus(0.1, 0.5, 90, 90);
 		break;
-	case 3:
+	case TORUS3:
 		glutSolidTorus(0.05, 0.1, 4, 40);
 		break;
-	case 4:
+	case CONE:
 		glutSolidCone(0.1, 0.2, 20, 20);
 		break;
-	case 5:
+	case GRID:
 		glBegin(GL_QUADS);
 			for (i = 0; i < res; i++) {
 				for (j = 0; j < res; j++) {
@@ -107,7 +116,7 @@ void shaderDrawGeom(void)
 			}
 		glEnd();
 		break;
-	case 6:
+	case BOX:
 		glBegin(GL_QUADS);
 			glVertex3f(-1, -1, -1);
 			glVertex3f( 1, -1, -1);
@@ -140,13 +149,50 @@ void shaderDrawGeom(void)
 			glVertex3f( 1,  1, -1);
 		glEnd();
 		break;
-	case 7:
+	case QUAD:
 		glBegin(GL_QUADS);
 			glVertex3f(-1, 1, -1);
 			glVertex3f(-1, -1, -1);
 			glVertex3f(1, -1, -1);
 			glVertex3f(1, 1, -1);
 		glEnd();
+		break;
+	case CUBE:
+		glutSolidCube(0.5);
+		break;
+	case SPHERE:
+		glutSolidSphere(0.5, 5, 5);
+		break;
+	case TETRAHEDRON:
+		glutSolidTetrahedron();
+		break;
+	case OCTAHEDRON:
+		glutSolidOctahedron();
+		break;
+	case DODECAHEDRON:
+		glutSolidDodecahedron();
+		break;
+	case ICOSAHEDRON:
+		glutSolidIcosahedron();
+		break;
+#ifdef USING_FREEGLUT
+	case RHOMBIC_DODECAHEDRON:
+		glutSolidRhombicDodecahedron();
+		break;
+/*
+	case TEACUP:
+		glutSolidTeacup(0.5);
+		break;
+	case TEASPOON:
+		glutSolidTeaspoon(0.5);
+		break;
+*/
+#endif
+	case TEAPOT:
+		/* GLUT's teapot is inside-out, this looks terrible */
+		glutSolidTeapot(0.5);
+		break;
+	default:
 		break;
 	}
 }
@@ -163,8 +209,8 @@ void shaderDisplayFunc(void)
 	glTranslatef(0, 0, dz);
 */
 	glTranslatef(panx, pany, -4);
-	glRotatef(rotx, 0, 1, 0);
 	glRotatef(roty, 1, 0, 0);
+	glRotatef(rotx, 0, 1, 0);
 /*
 	glRotatef(200 * (float)glutGet(GLUT_ELAPSED_TIME) / 1000, 0, 1, 0);
 	glRotatef(-20 * (float)glutGet(GLUT_ELAPSED_TIME) / 1000, 1, 0, 0);
@@ -242,8 +288,8 @@ void shaderMotionFunc(int x, int y)
 	prevy = y;
 
 	if (rotating) {
-		rotx -= dx;
-		roty -= dy;
+		rotx += dx;
+		roty += dy;
 	}
 	if (panning) {
 		panx -= 0.1 * dx;

@@ -143,6 +143,10 @@ void updateShaderUniforms(struct shader_program *p)
 	var = glGetUniformLocation(p->program, "fade");
 	if (var != -1)
 		glUniform1f(var, 1.0);
+
+	var = glGetUniformLocation(p->program, "light");
+	if (var != -1)
+		glUniform3f(var, 10.0, 10.0, 10.0);
 }
 
 int loadShaderFromFile(GLuint shader, const char *filename)
