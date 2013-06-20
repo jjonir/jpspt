@@ -1,0 +1,14 @@
+#version 120
+
+uniform float time;
+
+varying vec3 N;
+varying vec3 v;
+
+void main() {
+    float t = (sin(time) + 0.9) / 3;
+    vec4 vertex = t * vec4(gl_Normal, 0) +  gl_Vertex;
+    v = vec3(gl_ModelViewMatrix * vertex);
+    N = normalize(gl_NormalMatrix * gl_Normal);
+    gl_Position = gl_ModelViewProjectionMatrix * vertex;
+}
