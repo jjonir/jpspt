@@ -15,7 +15,7 @@ V - load a vertex shader for both the main geometry and the outline.
 
 F5 - reload all shaders from their files.  
 F11 - switch to fullscreen.  
-ESC - quit if displaying a shader, or cancel if entering a filename.
+ESC - quit if displaying a shader, or cancel if entering a filename.  
 TAB - switch geometry between:
 	teapot, torus1, torus2, torus3, cone, grid, box, quad
 
