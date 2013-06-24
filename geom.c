@@ -15,9 +15,12 @@ static void face_read(FILE *fp, struct face *face, int face_count,
 static void face_scan(const char *line, struct face *f,
 		struct vertex *v, int vertex_count);
 static void compute_normal(struct face *f);
-static void sub(struct vertex *res, const struct vertex *a, const struct vertex *b);
+static void add_vertex(struct vertex *res, const struct vertex *a, const struct vertex *b);
+static void sub_vertex(struct vertex *res, const struct vertex *a, const struct vertex *b);
+static void div_vertex(struct vertex *res, const struct vertex *num, const float denom);
 static void cross(struct vertex *res, const struct vertex *a, const struct vertex *b);
 static void copy_vertex(struct vertex *to, const struct vertex *from);
+static void compute_centroid(struct face *f);
 
 struct face *read_obj_file(const char *fname, int *count)
 {
@@ -127,6 +130,7 @@ void face_scan(const char *line, struct face *f,
 			}
 		}
 		compute_normal(f);
+		compute_centroid(f);
 	} else {
 		fprintf(stderr, "bad face line (needs 3 vertices):\n%s\n",
 			line);
@@ -136,19 +140,33 @@ void compute_normal(struct face *f)
 {
 /* TODO is this the right direction? I'm bad at rhr */
 	struct vertex a, b, n;
-	sub(&a, &f->v[0], &f->v[1]);
-	sub(&b, &f->v[0], &f->v[2]);
+	sub_vertex(&a, &f->v[0], &f->v[1]);
+	sub_vertex(&b, &f->v[0], &f->v[2]);
 	cross(&n, &a, &b);
 	copy_vertex(&f->n[0], &n);
 	copy_vertex(&f->n[1], &n);
 	copy_vertex(&f->n[2], &n);
 }
-void sub(struct vertex *res, const struct vertex *a, const struct vertex *b)
+void add_vertex(struct vertex *res, const struct vertex *a, const struct vertex *b)
+{
+	res->x = a->x + b->x;
+	res->y = a->y + b->y;
+	res->z = a->z + b->z;
+	res->w = a->w + b->w;
+}
+void sub_vertex(struct vertex *res, const struct vertex *a, const struct vertex *b)
 {
 	res->x = a->x - b->x;
 	res->y = a->y - b->y;
 	res->z = a->z - b->z;
 	res->w = a->w - b->w;
+}
+void div_vertex(struct vertex *res, const struct vertex *num, const float denom)
+{
+	res->x = num->x / denom;
+	res->y = num->y / denom;
+	res->z = num->z / denom;
+	res->w = num->w / denom;
 }
 void cross(struct vertex *res, const struct vertex *a, const struct vertex *b)
 {
@@ -162,4 +180,10 @@ void copy_vertex(struct vertex *to, const struct vertex *from)
 	to->y = from->y;
 	to->z = from->z;
 	to->w = from->w;
+}
+void compute_centroid(struct face *f)
+{
+	add_vertex(&f->c, &f->v[0], &f->v[1]);
+	add_vertex(&f->c, &f->c, &f->v[2]);
+	div_vertex(&f->c, &f->c, 3);
 }

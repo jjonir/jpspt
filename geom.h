@@ -8,6 +8,7 @@ struct face {
 	struct vertex v[3];
 	struct vertex n[3];
 	struct vertex t[3];
+	struct vertex c;
 };
 
 struct face *read_obj_file(const char *fname, int *count);
