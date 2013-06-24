@@ -225,11 +225,16 @@ void shaderDrawGeom(void)
 		if ((customGeom == NULL) || (customGeomCount == 0))
 			break;
 		glBegin(GL_TRIANGLES);
-			for (i = 0; i < customGeomCount; i++)
-				for (j = 0; j < 3; j++)
+			for (i = 0; i < customGeomCount; i++) {
+				for (j = 0; j < 3; j++) {
 					glVertex3f(customGeom[i].v[j].x,
 							customGeom[i].v[j].y,
 							customGeom[i].v[j].z);
+					glNormal3f(customGeom[i].n[j].x,
+							customGeom[i].n[j].y,
+							customGeom[i].n[j].z);
+				}
+			}
 		glEnd();
 		break;
 	default:

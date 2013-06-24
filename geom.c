@@ -14,6 +14,10 @@ static void face_read(FILE *fp, struct face *face, int face_count,
 		struct vertex *vertex, int vertex_count);
 static void face_scan(const char *line, struct face *f,
 		struct vertex *v, int vertex_count);
+static void compute_normal(struct face *f);
+static void sub(struct vertex *res, const struct vertex *a, const struct vertex *b);
+static void cross(struct vertex *res, const struct vertex *a, const struct vertex *b);
+static void copy_vertex(struct vertex *to, const struct vertex *from);
 
 struct face *read_obj_file(const char *fname, int *count)
 {
@@ -122,8 +126,40 @@ void face_scan(const char *line, struct face *f,
 				f->v[i].w = 1.0;
 			}
 		}
+		compute_normal(f);
 	} else {
 		fprintf(stderr, "bad face line (needs 3 vertices):\n%s\n",
 			line);
 	}
+}
+void compute_normal(struct face *f)
+{
+/* TODO is this the right direction? I'm bad at rhr */
+	struct vertex a, b, n;
+	sub(&a, &f->v[0], &f->v[1]);
+	sub(&b, &f->v[0], &f->v[2]);
+	cross(&n, &a, &b);
+	copy_vertex(&f->n[0], &n);
+	copy_vertex(&f->n[1], &n);
+	copy_vertex(&f->n[2], &n);
+}
+void sub(struct vertex *res, const struct vertex *a, const struct vertex *b)
+{
+	res->x = a->x - b->x;
+	res->y = a->y - b->y;
+	res->z = a->z - b->z;
+	res->w = a->w - b->w;
+}
+void cross(struct vertex *res, const struct vertex *a, const struct vertex *b)
+{
+	res->x = a->y * b->z - a->z * b->y;
+	res->y = -(a->x * b->z - a->z * b->x);
+	res->z = a->x * b->y - a->y * b->x;
+}
+void copy_vertex(struct vertex *to, const struct vertex *from)
+{
+	to->x = from->x;
+	to->y = from->y;
+	to->z = from->z;
+	to->w = from->w;
 }
