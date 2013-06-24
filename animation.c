@@ -8,6 +8,7 @@
 #include "animation.h"
 #include "shaders.h"
 #include "entry.h"
+#include "geom.h"
 
 shader_program_t fill;
 shader_program_t outline;
@@ -16,6 +17,7 @@ static void loadVertexShader(const char *vshad);
 static void loadBothVertexShaders(const char *vshad);
 static void loadFragmentShader(const char *fshad);
 static void loadOutlineFragmentShader(const char *fshad);
+static void loadGeom(const char *geom);
 static void shaderDrawGeom(void);
 static void shaderDisplayFunc(void);
 static void shaderKeyboardFunc(unsigned char key, int x, int y);
@@ -26,6 +28,9 @@ static void shaderReshapeFunc(int w, int h);
 int rotating = 0, panning = 0;
 float panx = 0, pany = 0, rotx = 0, roty = 0;
 int prevx = 0, prevy = 0;
+
+struct face *customGeom = NULL;
+int customGeomCount = 0;
 
 void initShaders(void)
 {
@@ -54,6 +59,13 @@ void loadOutlineFragmentShader(const char *fshad)
 	changeFragmentShader(outline, fshad);
 }
 
+void loadGeom(const char *geom)
+{
+	if (customGeom != NULL)
+		free(customGeom);
+	customGeom = read_obj_file(geom, &customGeomCount);
+}
+
 void reloadAllShaders(void)
 {
 	reloadShaders(fill);
@@ -75,6 +87,7 @@ void shaderDisplayMode(void)
 
 enum geoms {
 	TORUS1, TORUS2, TORUS3, CONE, GRID, BOX, QUAD, CUBE, SPHERE,
+	CYLINDER, CYLINDER2, CYLINDER3,
 	TETRAHEDRON, OCTAHEDRON, DODECAHEDRON, ICOSAHEDRON,
 #ifdef USING_FREEGLUT
 	RHOMBIC_DODECAHEDRON,
@@ -83,6 +96,7 @@ enum geoms {
 */
 #endif
 	TEAPOT,
+	CUSTOM,
 	NUM_GEOMS
 };
 int geom = TORUS1;
@@ -163,6 +177,21 @@ void shaderDrawGeom(void)
 	case SPHERE:
 		glutSolidSphere(0.5, 5, 5);
 		break;
+	case CYLINDER:
+		glutSolidCylinder(0.2, 0.5, 10, 10);
+		break;
+	case CYLINDER2:
+		glPushMatrix();
+		glRotatef(90.0, 1, 0, 0);
+		glutSolidCylinder(0.2, 0.5, 10, 10);
+		glPopMatrix();
+		break;
+	case CYLINDER3:
+		glPushMatrix();
+		glRotatef(45.0, 1, 0, 0);
+		glutSolidCylinder(0.2, 0.5, 10, 10);
+		glPopMatrix();
+		break;
 	case TETRAHEDRON:
 		glutSolidTetrahedron();
 		break;
@@ -191,6 +220,17 @@ void shaderDrawGeom(void)
 	case TEAPOT:
 		/* GLUT's teapot is inside-out, this looks terrible */
 		glutSolidTeapot(0.5);
+		break;
+	case CUSTOM:
+		if ((customGeom == NULL) || (customGeomCount == 0))
+			break;
+		glBegin(GL_TRIANGLES);
+			for (i = 0; i < customGeomCount; i++)
+				for (j = 0; j < 3; j++)
+					glVertex3f(customGeom[i].v[j].x,
+							customGeom[i].v[j].y,
+							customGeom[i].v[j].z);
+		glEnd();
 		break;
 	default:
 		break;
@@ -261,6 +301,8 @@ void shaderKeyboardFunc(unsigned char key, int x, int y)
 		dz -= 0.1;
 	else if (key == '\t')
 		geom = (geom + 1) % NUM_GEOMS;
+	else if (key == 'g')
+		stringEntryMode(loadGeom);
 }
 
 void shaderMouseFunc(int button, int state, int x, int y)
