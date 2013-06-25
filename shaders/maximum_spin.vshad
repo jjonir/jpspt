@@ -9,6 +9,7 @@ varying vec3 c;
 void main() {
    float M_PI = 3.14159265359;
    float t = clamp(sin(0.5*(time + gl_Color.x)), 0.0, 1.0);
+   float t_spin = asin(t);
    float r = clamp(mod(time + gl_Color.x, 4*M_PI), 0.0, 2*M_PI);
    float a = gl_Normal.x;
    float b = gl_Normal.y;
@@ -19,12 +20,14 @@ void main() {
                0, 0, 1, 0,
                0, 0, 0, 1);
    mat4 spin = mat4(
-               a*a+(1-a*a)*cos(t), a*b*(1-cos(t))-c*sin(t), a*c*(1-cos(t))+b*sin(t), 0.0,
-               a*b*(1-cos(t))+c*sin(t), b*b+(1-b*b)*cos(t), b*c*(1-cos(t))-a*sin(t), 0.0,
-               a*c*(1-cos(t))-b*sin(t), b*c*(1-cos(t))+a*sin(t), c*c+(1-c*c)*cos(t), 0.0,
+               a*a+(1-a*a)*cos(t_spin), a*b*(1-cos(t_spin))-c*sin(t_spin), a*c*(1-cos(t_spin))+b*sin(t_spin), 0.0,
+               a*b*(1-cos(t_spin))+c*sin(t_spin), b*b+(1-b*b)*cos(t_spin), b*c*(1-cos(t_spin))-a*sin(t_spin), 0.0,
+               a*c*(1-cos(t_spin))-b*sin(t_spin), b*c*(1-cos(t_spin))+a*sin(t_spin), c*c+(1-c*c)*cos(t_spin), 0.0,
                0.0, 0.0, 0.0, 1.0);
-   vec4 vertex = t * vec4(gl_Normal, 0) +  gl_Vertex;
-   vertex = vertex * spin * rotate;
+   vec4 vertex;
+   vertex = (gl_Vertex - gl_Color) * spin + gl_Color;
+   vertex = t * vec4(gl_Normal, 0) +  vertex;
+   vertex = vertex * rotate;
    v = vec3(gl_ModelViewMatrix * vertex);
    N = normalize(gl_NormalMatrix * vec3(vec4(gl_Normal, 1.0) * rotate));
    gl_Position = gl_ModelViewProjectionMatrix * vertex;
