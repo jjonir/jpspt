@@ -29,6 +29,22 @@ int rotating = 0, panning = 0;
 float panx = 0, pany = 0, rotx = 0, roty = 0;
 int prevx = 0, prevy = 0;
 
+enum geoms {
+	TORUS1, TORUS2, TORUS3, CONE, GRID, BOX, QUAD, CUBE, SPHERE,
+	TETRAHEDRON, OCTAHEDRON, DODECAHEDRON, ICOSAHEDRON,
+#ifdef USING_FREEGLUT
+	RHOMBIC_DODECAHEDRON,
+	CYLINDER, CYLINDER2, CYLINDER3,
+/*
+	TEACUP, TEASPOON,
+*/
+#endif
+	TEAPOT,
+	CUSTOM,
+	NUM_GEOMS
+};
+int geom = TORUS1;
+
 struct face *customGeom = NULL;
 int customGeomCount = 0;
 
@@ -59,11 +75,12 @@ void loadOutlineFragmentShader(const char *fshad)
 	changeFragmentShader(outline, fshad);
 }
 
-void loadGeom(const char *geom)
+void loadGeom(const char *geom_file)
 {
 	if (customGeom != NULL)
 		free(customGeom);
-	customGeom = read_obj_file(geom, &customGeomCount);
+	customGeom = read_obj_file(geom_file, &customGeomCount);
+	geom = CUSTOM;
 }
 
 void reloadAllShaders(void)
@@ -85,21 +102,6 @@ void shaderDisplayMode(void)
 	glutPostRedisplay();
 }
 
-enum geoms {
-	TORUS1, TORUS2, TORUS3, CONE, GRID, BOX, QUAD, CUBE, SPHERE,
-	TETRAHEDRON, OCTAHEDRON, DODECAHEDRON, ICOSAHEDRON,
-#ifdef USING_FREEGLUT
-	RHOMBIC_DODECAHEDRON,
-	CYLINDER, CYLINDER2, CYLINDER3,
-/*
-	TEACUP, TEASPOON,
-*/
-#endif
-	TEAPOT,
-	CUSTOM,
-	NUM_GEOMS
-};
-int geom = TORUS1;
 void shaderDrawGeom(void)
 {
 	int res = 100;
