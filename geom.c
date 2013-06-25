@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #include "geom.h"
 
 #define LINE_MAX 256
@@ -21,6 +22,7 @@ static void div_vertex(struct vertex *res, const struct vertex *num, const float
 static void cross(struct vertex *res, const struct vertex *a, const struct vertex *b);
 static void copy_vertex(struct vertex *to, const struct vertex *from);
 static void compute_centroid(struct face *f);
+static void normalize3(struct vertex *v);
 
 struct face *read_obj_file(const char *fname, int *count)
 {
@@ -117,6 +119,7 @@ void face_scan(const char *line, struct face *f,
 /* TODO face format is more complex than this */
 	n = sscanf(line, "f %d %d %d", &index[0], &index[1], &index[2]);
 	if (n == 3) {
+		printf("face\n");
 		for (i = 0; i < 3; i++) {
 			if ((index[i] > vertex_count) || (index[i] < 1)) {
 				fprintf(stderr, "bad face line "
@@ -127,10 +130,17 @@ void face_scan(const char *line, struct face *f,
 				f->v[i].y = v[index[i]-1].y;
 				f->v[i].z = v[index[i]-1].z;
 				f->v[i].w = 1.0;
+				printf("%.2f, %.2f, %.2f\n",
+						f->v[i].x, f->v[i].y,
+						f->v[i].z);
 			}
 		}
 		compute_normal(f);
+		for (i = 0; i < 3; i++)
+			printf("normal\n%.2f, %.2f, %.2f\n", f->n[i].x,
+					f->n[i].y, f->n[i].z);
 		compute_centroid(f);
+		printf("centroid\n%.2f, %.2f, %.2f\n", f->c.x, f->c.y, f->c.z);
 	} else {
 		fprintf(stderr, "bad face line (needs 3 vertices):\n%s\n",
 			line);
@@ -143,6 +153,7 @@ void compute_normal(struct face *f)
 	sub_vertex(&a, &f->v[0], &f->v[1]);
 	sub_vertex(&b, &f->v[0], &f->v[2]);
 	cross(&n, &a, &b);
+	normalize3(&n);
 	copy_vertex(&f->n[0], &n);
 	copy_vertex(&f->n[1], &n);
 	copy_vertex(&f->n[2], &n);
@@ -186,4 +197,10 @@ void compute_centroid(struct face *f)
 	add_vertex(&f->c, &f->v[0], &f->v[1]);
 	add_vertex(&f->c, &f->c, &f->v[2]);
 	div_vertex(&f->c, &f->c, 3);
+}
+void normalize3(struct vertex *v)
+{
+	float l;
+	l = sqrt(v->x * v->x + v->y * v->y + v->z * v->z);
+	div_vertex(v, v, l);
 }
