@@ -119,7 +119,6 @@ void face_scan(const char *line, struct face *f,
 /* TODO face format is more complex than this */
 	n = sscanf(line, "f %d %d %d", &index[0], &index[1], &index[2]);
 	if (n == 3) {
-		printf("face\n");
 		for (i = 0; i < 3; i++) {
 			if ((index[i] > vertex_count) || (index[i] < 1)) {
 				fprintf(stderr, "bad face line "
@@ -130,17 +129,11 @@ void face_scan(const char *line, struct face *f,
 				f->v[i].y = v[index[i]-1].y;
 				f->v[i].z = v[index[i]-1].z;
 				f->v[i].w = 1.0;
-				printf("%.2f, %.2f, %.2f\n",
-						f->v[i].x, f->v[i].y,
-						f->v[i].z);
 			}
 		}
 		compute_normal(f);
 		for (i = 0; i < 3; i++)
-			printf("normal\n%.2f, %.2f, %.2f\n", f->n[i].x,
-					f->n[i].y, f->n[i].z);
 		compute_centroid(f);
-		printf("centroid\n%.2f, %.2f, %.2f\n", f->c.x, f->c.y, f->c.z);
 	} else {
 		fprintf(stderr, "bad face line (needs 3 vertices):\n%s\n",
 			line);
