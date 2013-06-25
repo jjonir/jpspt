@@ -1,0 +1,24 @@
+#version 120
+ 
+uniform float time;
+ 
+varying vec3 N;
+varying vec3 v;
+varying vec3 c;
+ 
+void main() {
+    float t = time;
+    vec4 r = gl_Vertex - gl_Color;
+    float a = gl_Normal.x;
+    float b = gl_Normal.y;
+    float c = gl_Normal.z;
+    mat4 rotate = mat4(
+                a*a+(1-a*a)*cos(t), a*b*(1-cos(t))-c*sin(t), a*c*(1-cos(t))+b*sin(t), 0.0,
+                a*b*(1-cos(t))+c*sin(t), b*b+(1-b*b)*cos(t), b*c*(1-cos(t))-a*sin(t), 0.0,
+                a*c*(1-cos(t))-b*sin(t), b*c*(1-cos(t))+a*sin(t), c*c+(1-c*c)*cos(t), 0.0,
+                0.0, 0.0, 0.0, 1.0);
+    vec4 vertex = r * rotate + gl_Color;
+    v = vec3(gl_ModelViewMatrix * vertex);
+    N = normalize(gl_NormalMatrix * vec3(vec4(gl_Normal, 1.0) * rotate));
+    gl_Position = gl_ModelViewProjectionMatrix * vertex;
+}

@@ -1,0 +1,19 @@
+#version 120
+
+#define PI 3.14159
+
+uniform float time;
+
+varying vec3 N;
+varying vec3 v;
+varying vec3 c;
+
+void main() {
+    float t = clamp(sin(time*3 + gl_Vertex.z) / 3, 0.0, 1.0);
+    float t2 = clamp(sin(time*3 - gl_Vertex.z) / 3, 0.0, 1.0);
+    vec4 vertex = t * vec4(gl_Normal, 0) +  gl_Vertex;
+    c = clamp(vec3(pow(sin(t2*PI), 5.0), pow(sin(t2*PI), 5.0), 0.0), 0.0, 1.0);
+    v = vec3(gl_ModelViewMatrix * vertex);
+    N = normalize(gl_NormalMatrix * gl_Normal);
+    gl_Position = gl_ModelViewProjectionMatrix * vertex;
+}

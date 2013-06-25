@@ -9,15 +9,16 @@
 uniform vec3 light;
 varying vec3 N;
 varying vec3 v;
+varying vec3 c;
 
 void main() {
     vec3 L = normalize(light - v);
     vec3 E = normalize(-v);
     vec3 R = normalize(-reflect(L, N));
 
-    vec4 Iamb = amb;
+    vec4 Iamb = amb + vec4(c, 1.0);
 
-    vec4 Idiff = diff* max(dot(N, L), 0.0);
+    vec4 Idiff = diff * max(dot(N, L), 0.0);
     Idiff = clamp(Idiff, 0.0, 1.0);
 
     vec4 Ispec = spec * pow(max(dot(R, E), 0.0), 0.3 * shininess);

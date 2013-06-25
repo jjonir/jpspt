@@ -2,6 +2,9 @@
 
 uniform float time;
 
+varying vec3 N;
+varying vec3 v;
+
 void main() {
 /*
     mat4 flap = mat4(
@@ -10,12 +13,14 @@ void main() {
                0, 0, 1, 0,
                0, 0, 0, 1);
 */
-    float t = cos(time)*gl_Vertex.x*3;
+    float t = cos(time)*abs(gl_Vertex.x)*2;
     mat4 flap = mat4(
                 cos(t), 0, sin(t), 0,
                 0, 1, 0, 0,
                 -sin(t), 0, cos(t), 0,
                 0, 0, 0, 1);
     vec4 vertex = flap * gl_Vertex;
+    v = vec3(gl_ModelViewMatrix * vertex);
+    N = normalize(gl_NormalMatrix * gl_Normal);
     gl_Position = gl_ProjectionMatrix * gl_ModelViewMatrix * vertex;
 }
