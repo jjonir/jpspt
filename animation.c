@@ -230,6 +230,9 @@ void shaderDrawGeom(void)
 					glNormal3f(customGeom[i].n[j].x,
 							customGeom[i].n[j].y,
 							customGeom[i].n[j].z);
+					glColor3f(customGeom[i].c.x,
+							customGeom[i].c.y,
+							customGeom[i].c.z);
 					glVertex3f(customGeom[i].v[j].x,
 							customGeom[i].v[j].y,
 							customGeom[i].v[j].z);
