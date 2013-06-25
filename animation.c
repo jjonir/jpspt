@@ -87,10 +87,10 @@ void shaderDisplayMode(void)
 
 enum geoms {
 	TORUS1, TORUS2, TORUS3, CONE, GRID, BOX, QUAD, CUBE, SPHERE,
-	CYLINDER, CYLINDER2, CYLINDER3,
 	TETRAHEDRON, OCTAHEDRON, DODECAHEDRON, ICOSAHEDRON,
 #ifdef USING_FREEGLUT
 	RHOMBIC_DODECAHEDRON,
+	CYLINDER, CYLINDER2, CYLINDER3,
 /*
 	TEACUP, TEASPOON,
 */
@@ -177,21 +177,6 @@ void shaderDrawGeom(void)
 	case SPHERE:
 		glutSolidSphere(0.5, 5, 5);
 		break;
-	case CYLINDER:
-		glutSolidCylinder(0.2, 0.5, 10, 10);
-		break;
-	case CYLINDER2:
-		glPushMatrix();
-		glRotatef(90.0, 1, 0, 0);
-		glutSolidCylinder(0.2, 0.5, 10, 10);
-		glPopMatrix();
-		break;
-	case CYLINDER3:
-		glPushMatrix();
-		glRotatef(45.0, 1, 0, 0);
-		glutSolidCylinder(0.2, 0.5, 10, 10);
-		glPopMatrix();
-		break;
 	case TETRAHEDRON:
 		glutSolidTetrahedron();
 		break;
@@ -207,6 +192,21 @@ void shaderDrawGeom(void)
 #ifdef USING_FREEGLUT
 	case RHOMBIC_DODECAHEDRON:
 		glutSolidRhombicDodecahedron();
+		break;
+	case CYLINDER:
+		glutSolidCylinder(0.2, 0.5, 10, 10);
+		break;
+	case CYLINDER2:
+		glPushMatrix();
+		glRotatef(90.0, 1, 0, 0);
+		glutSolidCylinder(0.2, 0.5, 10, 10);
+		glPopMatrix();
+		break;
+	case CYLINDER3:
+		glPushMatrix();
+		glRotatef(45.0, 1, 0, 0);
+		glutSolidCylinder(0.2, 0.5, 10, 10);
+		glPopMatrix();
 		break;
 /*
 	case TEACUP:

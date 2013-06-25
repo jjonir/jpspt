@@ -1,7 +1,7 @@
 CC = gcc
 OBJECTS = main.o animation.o shaders.o entry.o geom.o
-CFLAGS = -Wall -Wextra -ansi -pedantic
-LDLIBS = -lGLEW -lglut -lGL -lGLU
+CFLAGS = -Wall -Wextra -ansi -pedantic -DWITH_DIRENT -DUSING_FREEGLUT
+LDLIBS = -lGLEW -lglut -lGL -lGLU -lm
 RM = rm -f
 
 .PHONY: all clean
