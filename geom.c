@@ -15,6 +15,7 @@ static void face_read(FILE *fp, struct face *face, int face_count,
 		struct vertex *vertex, int vertex_count);
 static void face_scan(const char *line, struct face *f,
 		struct vertex *v, int vertex_count);
+static int face_scan_vertex(const char *s, struct face_vertex *v);
 static void compute_normal(struct face *f);
 static void add_vertex(struct vertex *res, const struct vertex *a, const struct vertex *b);
 static void sub_vertex(struct vertex *res, const struct vertex *a, const struct vertex *b);
@@ -125,19 +126,36 @@ void face_scan(const char *line, struct face *f,
 					"(vertex index %d out of bounds):"
 					"\n%s\n", index[i], line);
 			} else {
-				f->v[i].x = v[index[i]-1].x;
-				f->v[i].y = v[index[i]-1].y;
-				f->v[i].z = v[index[i]-1].z;
+				copy_vertex(&f->v[i], &v[index[i]-1]);
 				f->v[i].w = 1.0;
 			}
 		}
 		compute_normal(f);
-		for (i = 0; i < 3; i++)
 		compute_centroid(f);
 	} else {
 		fprintf(stderr, "bad face line (needs 3 vertices):\n%s\n",
 			line);
 	}
+}
+int face_scan_vertex(const char *s, struct face_vertex *v)
+{
+	int iv, ivp, in;
+	if (sscanf(s, "%d/%d/%d ", &iv, &ivp, &in) == 3) {
+		copy_vertex(&v->v, &vertices[iv]);
+		copy_vertex(&v->vt, &texture_vertices[ivt]);
+		copy_vertex(&v->n, &normals[in]);
+	} else if (sscanf(s, "%d//%d ", &iv, &in) == 2) {
+		copy_vertex(&v->v, &vertices[iv]);
+		copy_vertex(&v->n, &normals[in]);
+	} else if (sscanf(s, "%d/%d ", &iv, &ivp) == 2) {
+		copy_vertex(&v->v, &vertices[iv]);
+		copy_vertex(&v->vt, &texture_vertices[ivt]);
+	} else if (sscanf(s, "%d ", &iv) == 1) {
+		copy_vertex(&v->v, &vertices[iv]);
+	} else {
+		return -1;
+	}
+	return 0;
 }
 void compute_normal(struct face *f)
 {

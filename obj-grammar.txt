@@ -1,0 +1,70 @@
+#lexical rules
+tokens on a single line, excluding slashes, are separated by spaces/tabs
+
+#simplified obj grammar
+obj:	line NEWLINE obj |
+	line |
+	/* nothing*/;
+
+line:	face |
+	vertex |
+	texvertex |
+	normal |
+	COMMENT |
+	/* nothing */;
+
+vertex:	'v' FLOAT FLOAT FLOAT |
+	'v' FLOAT FLOAT FLOAT FLOAT;
+
+texvertex:
+	'vt' FLOAT FLOAT |
+	'vt' FLOAT FLOAT FLOAT;
+
+normal:	'n' FLOAT FLOAT FLOAT;
+
+face:	'f' indexlist;
+
+indexlist:
+	vindexlist |
+	vvtindexlist |
+	vvnindexlist |
+	vvtvnindexlist;
+
+vindexlist:
+	vindex vindex vindex vindices;
+
+vindices:
+	vindex vindices |
+	/* nothing */;
+
+vindex:	INT;
+
+vvtindexlist:
+	vvtindex vvtindex vvtindex vvtindices;
+
+vvtindices:
+	vvtindex vvtindices |
+	/* nothing */;
+
+vvtindex:
+	INT/INT;
+
+vvnindexlist:
+	vvnindex vvnindex vvnindex vvnindices;
+
+vvnindices:
+	vvnindex vvnindices |
+	/* nothing */;
+
+vvnindex:
+	INT//INT;
+
+vvtvnindexlist:
+	vvtvnindex vvtvnindex vvtvnindex vvtvnindices;
+
+vvtvnindices:
+	vvtvnindex vvtvnindices |
+	/* nothing */;
+
+vvtvnindex:
+	INT/INT/INT;

@@ -4,10 +4,14 @@
 struct vertex {
 	float x, y, z, w;
 };
+struct face_vertex {
+	struct vertex v;
+	struct vertex vt;
+	struct vertex n;
+};
 struct face {
-	struct vertex v[3];
-	struct vertex n[3];
-	struct vertex t[3];
+	int vertex_count;
+	struct face_vertex *v;
 	struct vertex c;
 };
 
