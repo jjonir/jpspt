@@ -1,9 +1,9 @@
 %{
 #include <stdlib.h>
+#include <stdio.h>
 #include "parser.tab.h"
 
-extern int lit_int;
-extern float lit_float;
+YYSTYPE yylval;
 %}
 
 float [+-]?([0-9]+\.?[0-9]*)|(\.[0-9]+)
@@ -31,12 +31,12 @@ int [+-]?[0-9]+
 }
 
 {int} {
-	lit_int = strtoul(yytext, NULL, 10);
+	yylval.i = strtoul(yytext, NULL, 10);
 	return INT;
 }
 
 {float} {
-	lit_float = strtof(yytext, NULL);
+	yylval.f = strtof(yytext, NULL);
 	return FLOAT;
 }
 
