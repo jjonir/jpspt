@@ -14,7 +14,12 @@ struct face {
 	struct face_vertex *v;
 	struct vertex c;
 };
+struct face_array {
+	int face_count;
+	struct face *f;
+};
 
-struct face *read_obj_file(const char *fname, int *count);
+struct face_array *read_obj_file(const char *fname);
+void delete_face_array(struct face_array *f);
 
 #endif

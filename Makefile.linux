@@ -1,6 +1,10 @@
 CC = gcc
-OBJECTS = main.o animation.o shaders.o entry.o geom.o
+LEX = flex
+YACC = bison
+OBJECTS = main.o animation.o shaders.o entry.o parser.o scanner.o
 CFLAGS = -Wall -Wextra -ansi -pedantic -DWITH_DIRENT -DUSING_FREEGLUT
+LFLAGS = -i # -i: case insensitive
+YFLAGS = -d -t # -d: header, -t: debug
 LDLIBS = -lGLEW -lglut -lGL -lGLU -lm
 RM = rm -f
 
@@ -19,3 +23,25 @@ jpspt: $(OBJECTS)
 clean:
 	@echo CLEAN
 	@$(RM) jpspt $(OBJECTS)
+
+#################
+# Object parser #
+#################
+obj-parser: standalone_parser.o scanner.o
+	$(CC) -o $@ standalone_parser.o scanner.o
+
+parser.o: parser.tab.c
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+standalone_parser.o: parser.tab.c
+	$(CC) $(CFLAGS) -DSTANDALONE_PARSER -c -o $@ $<
+
+parser.tab.c: parser.y
+	$(YACC) $(YFLAGS) $<
+
+scanner.o: scanner.c parser.tab.c
+	$(CC) $(CFLAGS) -Wno-sign-compare -Wno-unused-function -c -o $@ $<
+
+scanner.c: scanner.l
+	$(LEX) $(LFLAGS) $<
+	mv lex.yy.c scanner.c

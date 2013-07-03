@@ -45,8 +45,7 @@ enum geoms {
 };
 int geom = TORUS1;
 
-struct face *customGeom = NULL;
-int customGeomCount = 0;
+struct face_array *customGeom = NULL;
 
 void initShaders(void)
 {
@@ -78,8 +77,8 @@ void loadOutlineFragmentShader(const char *fshad)
 void loadGeom(const char *geom_file)
 {
 	if (customGeom != NULL)
-		free(customGeom);
-	customGeom = read_obj_file(geom_file, &customGeomCount);
+		delete_face_array(customGeom);
+	customGeom = read_obj_file(geom_file);
 	geom = CUSTOM;
 }
 
@@ -224,8 +223,27 @@ void shaderDrawGeom(void)
 		glutSolidTeapot(0.5);
 		break;
 	case CUSTOM:
+/*
 		if ((customGeom == NULL) || (customGeomCount == 0))
+*/
+		if (customGeom == NULL)
 			break;
+		for (i = 0; i < customGeom->face_count; i++) {
+			glBegin(GL_POLYGON);
+				for (j = 0; j < customGeom->f[i].vertex_count; j++) {
+					glNormal3f(customGeom->f[i].v[j].n.x,
+							customGeom->f[i].v[j].n.y,
+							customGeom->f[i].v[j].n.z);
+					glColor3f(customGeom->f[i].c.x,
+							customGeom->f[i].c.y,
+							customGeom->f[i].c.z);
+					glVertex3f(customGeom->f[i].v[j].v.x,
+							customGeom->f[i].v[j].v.y,
+							customGeom->f[i].v[j].v.z);
+				}
+			glEnd();
+		}
+/*
 		glBegin(GL_TRIANGLES);
 			for (i = 0; i < customGeomCount; i++) {
 				for (j = 0; j < 3; j++) {
@@ -241,6 +259,7 @@ void shaderDrawGeom(void)
 				}
 			}
 		glEnd();
+*/
 		break;
 	default:
 		break;
@@ -278,7 +297,7 @@ void shaderDisplayFunc(void)
 	switchToShader(fill);
 	shaderDrawGeom();
 
-	glLineWidth(10);
+	glLineWidth(1);
 	glPolygonMode(GL_BACK, GL_LINE);
 	glDepthFunc(GL_LEQUAL);
 	glCullFace(GL_FRONT);

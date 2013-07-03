@@ -6,13 +6,17 @@
 YYSTYPE yylval;
 %}
 
-float [+-]?([0-9]+\.?[0-9]*)|(\.[0-9]+)
+float ([+-]?[0-9]+(\.[0-9]*)?([eE][+-]?[0-9]+)?)|([+-]?\.[0-9]+([eE][+-]?[0-9]+)?)
 int [+-]?[0-9]+
 
 %%
 
 [ \t\n]+ /* not sure if this is right... */
 #.*\n    /* comments */
+g.*\n /* ignore for now */
+s.*\n /* ignore for now */
+mtllib.*\n /* wtf ignore for now */
+usemtl.*\n /* wtf ignore for now */
 
 "v" {
 	return V;
@@ -22,7 +26,7 @@ int [+-]?[0-9]+
 	return VT;
 }
 
-"n" {
+"vn" {
 	return N;
 }
 
